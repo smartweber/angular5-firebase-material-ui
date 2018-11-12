@@ -1,0 +1,139 @@
+<div class="customer-list-wrap full-height" *ngIf="bIsLoading">
+	<div class="row no-margin full-height" [style.height.px]="windowH">
+		<div class="col-md-3 col-sm-6 data-list full-height"><!-- customer -->
+			<div class="data-list-container">
+				<h3 class="sub-title">Customers</h3>
+
+				<div class="list-wrapper">
+					<div class="list-item" fxLayout="row" fxLayoutAlign="center center" *ngFor="let customer of customers;let i = index;" (click)="selectCustomer(i)" [ngClass]="{'list-active': i===selectedCustomId}">
+						<div fxLayout fxLayoutAlign="space-between center" fxFlex="40px">
+							<mat-icon *ngIf="i!==selectedCustomId">add</mat-icon>
+							<mat-icon *ngIf="i===selectedCustomId">remove</mat-icon>
+						</div>
+						<div fxFlex="1 1 calc(100% - 190px)" class="text-wrap">
+							<a routerLink="/customer_detail/{{customer.key}}">
+								{{ customer.name }}
+							</a>
+						</div>
+						<div fxFlex="150px" fxLayout="row" fxLayoutAlign="space-between center">
+							<mat-icon class="mr-2" [style.color]="customer.color">place</mat-icon>
+
+							<div class="counter-wrapper mr-2" [ngClass]="{'off': customer.offTotal > 0 }">
+								{{customer.total - customer.offTotal}}/{{customer.total}}
+							</div>
+
+							<div class="delete-item" *ngIf="bIsEditable">
+								<mat-icon (click)="deleteCustomer(customer.key)">delete_outline</mat-icon>
+							</div>
+						</div>
+					</div>
+				</div>
+
+				<div class="row create-section" *ngIf="bIsEditable">
+					<div class="col-12 no-padding">
+						<button mat-mini-fab color class="pull-right btn-icon" (click)="createCustomer()">
+							<img src="assets/images/add_color.png" />
+						</button>
+					</div>
+				</div>
+			</div>
+		</div><!-- customer -->
+
+		<div class="col-md-3 col-sm-6 data-list full-height">
+			<div class="data-list-container">
+				<h3 class="sub-title">Zones</h3>
+
+				<div class="list-wrapper" *ngIf="bIsSelectedCustomer">
+					<div class="list-item" fxLayout="row" fxLayoutAlign="center center" *ngFor="let zone of focusZones;let i = index;" (click)="selectZone(i, zone)" [ngClass]="{'list-active': i===selectedZoneId}">
+						<div fxLayout fxLayoutAlign="space-between center" fxFlex="40px">
+							<mat-icon *ngIf="i!==selectedZoneId">add</mat-icon>
+							<mat-icon *ngIf="i===selectedZoneId">remove</mat-icon>
+						</div>
+						<div fxFlex="1 1 calc(100% - 140px)" class="text-wrap">
+							<a routerLink="/zone_detail/{{zone.key}}">
+								{{zone.name}}
+							</a>
+						</div>
+						<div fxFlex="100px" fxLayout="row" fxLayoutAlign="space-between center">
+							<div class="counter-wrapper mr-2" [ngClass]="{'off': zone.offTotal > 0 }">
+								{{zone.total - zone.offTotal}}/{{zone.total}}
+							</div>
+
+							<div class="delete-item" *ngIf="bIsEditable">
+								<mat-icon (click)="deleteZone(zone.key)">delete_outline</mat-icon>
+							</div>
+						</div>
+					</div>
+				</div>
+
+				<div class="row create-section" *ngIf="bIsSelectedCustomer">
+					<div class="full-width">
+						<button mat-mini-fab color  class="pull-right btn-icon" (click)="createZone()">
+							<img src="assets/images/add_color.png" />
+						</button>
+					</div>
+				</div>
+
+				<div class='mt-5 mx-2' *ngIf='bIsSelectedZone'>
+					<app-detail-viewer
+						[strName] = 'selectedZone.name'
+						[strDescription] = 'selectedZone.description'
+					></app-detail-viewer>
+				</div>
+			</div>
+		</div>
+
+		<div class="col-md-3 col-sm-6 data-list full-height">
+			<div class="data-list-container">
+				<h3 class="sub-title">Sensors</h3>
+
+				<div class="list-wrapper" *ngIf="bIsSelectedZone">
+					<div class="list-item" fxLayout="row" fxLayoutAlign="center center" *ngFor="let sensor of sensors;let i = index;" (click)="selectSensor(i)" [ngClass]="{'list-active': i===selectedSensorId}">
+						<div fxFlex="40px">
+						</div>
+						<div fxFlex="1 1 calc(100% - 120px)" class="text-wrap">
+							<a [routerLink]="['/sensor', sensor.key]" [queryParams]="{type: 'edit'}">
+								{{ sensor.name }}
+							</a>
+						</div>
+						<div fxFlex="80px" fxLayout="row" fxLayoutAlign="space-between center">
+							<div class="counter-wrapper sensor-icon mr-2" [ngClass]="{'off': sensor.availability === 'off'}"></div>
+
+							<div class="delete-item" *ngIf="bIsEditable">
+								<mat-icon (click)="deleteSensor(sensor.key)">delete_outline</mat-icon>
+							</div>
+						</div>
+					</div>
+				</div>
+
+				<div class="row create-section" *ngIf="bIsSelectedZone">
+					<div class="full-width">
+						<button mat-mini-fab color class="pull-right btn-icon" (click)="createSensor()">
+							<img src="assets/images/add_color.png" />
+						</button>
+					</div>
+				</div>
+
+				<div class='mt-5 mx-2' *ngIf='bIsSelectedSensor'>
+					<app-detail-viewer
+						[strName] = 'selectedSensor.name'
+						[strDescription] = 'selectedSensor.description'
+					></app-detail-viewer>
+				</div>
+			</div>
+		</div>
+
+		<div class="col-md-3 col-sm-6 data-list full-height">
+			<div class="data-list-container">
+				<!-- <h3 class="sub-title">Sensor Data</h3>
+
+				<div class="row no-margin"  *ngIf="bIsSelectedSensor">
+					<app-sensor-detail
+					[selectedSensor] = "selectedSensor"
+					[sensorKey]="strSensorKey"
+					></app-sensor-detail>
+				</div> -->
+			</div>
+		</div>
+	</div>
+</div>

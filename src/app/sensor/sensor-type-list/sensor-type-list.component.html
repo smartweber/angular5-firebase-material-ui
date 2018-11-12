@@ -1,0 +1,22 @@
+<div class="omniscent-view">
+	<h1 class="text-center omniscent-title">
+		Sensor Type List
+	</h1>
+
+	<div class="omniscent-wrap omniscent-catalog-view">
+		<div class="omniscent-name-list" *ngIf="bIsLoadList">
+			<mat-list class="omni-list-group">
+				<mat-list-item class="omni-list-item" *ngFor="let type of arrSensorTypes" (click)="onSelectType(type['key'])" [ngClass]="{'list-active': strSelectedType === type['key']}">
+					{{ type['typeName'] }}
+				</mat-list-item>
+			</mat-list>
+		</div>
+
+		<div class="omniscent-detail-view" *ngIf="bIsLoadDetail">
+			<app-sensor-type-info
+			[strTypeKey] = "strSelectedType"
+			[isComponent] = "true"
+			></app-sensor-type-info>
+		</div>
+	</div>
+</div>

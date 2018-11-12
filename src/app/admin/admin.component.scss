@@ -1,0 +1,42 @@
+@import 'src/theme.scss';
+
+:host {
+    width: 100%;
+
+    .admin-page-container{
+        background-color: transparent;
+
+        .admin-sidenav {
+            background-color: mat-color($app-primary, 800);
+            width: 190px;
+            max-width: 190px;
+        }
+    
+        .admin-board {
+            margin: 20px;
+        }
+    
+        .arrow::before {
+            font-family: FontAwesome;
+            content: "\f078";
+            display: inline-block;
+            padding-left: 10px;
+            padding-right: 10px;
+            vertical-align: middle;
+            float: right;
+        }
+
+        .parent-nav {
+            &.active {
+                border-left: 3px solid mat-color($app-orange, 300);
+                background-color: mat-color($app-primary, 900);
+            }
+        }
+    
+        .navbar-controlelr {
+            position: absolute;
+            z-index: 100;
+            left: 20px;
+        }
+    }
+}

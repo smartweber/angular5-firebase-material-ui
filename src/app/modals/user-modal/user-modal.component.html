@@ -1,0 +1,35 @@
+<div class="user-area">
+  <mat-progress-bar mode="indeterminate" *ngIf="bIsProcess"></mat-progress-bar>
+  <h2 mat-dialog-title>Change the user status</h2>
+
+  <form [formGroup]="settingForm" (ngSubmit)="submitSetting()">
+    <mat-dialog-content>
+      <mat-form-field class="full-width capitalize">
+        <mat-select formControlName="role" placeholder="Select a user role" class="full-width">
+          <mat-option *ngFor="let role of arrObjRoles" [value]="role.value">
+            <div class="capitalize">
+              {{ role.display }}
+            </div>
+          </mat-option>
+        </mat-select>
+      </mat-form-field>
+
+      <mat-form-field class="full-width capitalize">
+        <mat-select formControlName="status" placeholder="Select a user status" class="full-width">
+          <mat-option *ngFor="let status of arrStrUserStatus" [value]="status">
+            <div class="capitalize">
+              {{ status }}
+            </div>
+          </mat-option>
+        </mat-select>
+      </mat-form-field>
+    </mat-dialog-content>
+
+    <mat-dialog-actions align="end" *ngIf="!bIsProcess">
+      <button mat-stroked-button color="primary" type="submit" class="mr-1">Submit</button>
+      <button mat-stroked-button color="warn" (click)="close($event)">Close</button>
+    </mat-dialog-actions>
+  </form>
+</div>
+
+

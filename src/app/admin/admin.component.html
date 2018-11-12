@@ -1,0 +1,127 @@
+<mat-sidenav-container class="admin-page-container full-height">
+  <mat-sidenav mode="side" opened="true" class="admin-sidenav" *ngIf="bIsNavBar">
+    <mat-nav-list>
+      <div *ngIf="bIsStaffUser">
+        <mat-list-item (click)="onSelectStaff()" class="parent-nav" [ngClass]="{'active': nUserType === 0}">
+          <mat-icon class="mr-1">group</mat-icon>
+          <span>Omniscent users</span>
+        </mat-list-item>
+      </div>
+      <mat-divider *ngIf="bIsStaffUser"></mat-divider>
+      <div>
+        <mat-list-item (click)="onSelectCustomerArea()" class="parent-nav" [ngClass]="{'active': nUserType === 1}">
+          <mat-icon class="mr-1">group</mat-icon>
+          <span>Customer users</span>
+          <mat-icon class="ml-1" *ngIf="bIsShowCustomerMenu; else leftIconEle">keyboard_arrow_down</mat-icon>
+          <ng-template #leftIconEle>
+            <mat-icon class="ml-1">keyboard_arrow_left</mat-icon>
+          </ng-template>
+        </mat-list-item>
+
+        <div *ngIf="bIsShowCustomerMenu">
+          <div *ngFor="let customer of arrObjCustomerList" class="child-nav">
+            <mat-list-item (click)="onSelectCustomer(customer.key)" [ngClass]="{'active': nUserType === 1 && customer.key === strSelectedCustomerKey}">
+              <mat-icon class="mr-1">person</mat-icon>
+              <span>{{ customer.name }}</span>
+            </mat-list-item>
+          </div>
+        </div>
+      </div>
+    </mat-nav-list>
+  </mat-sidenav>
+
+  <mat-sidenav-content>
+    <div class="navbar-controlelr" *ngIf="bIsNavBarController">
+      <button mat-mini-fab color="primary" (click)="onToggleNavBar()" *ngIf="bIsNavBar">
+        <mat-icon>keyboard_backspace</mat-icon>
+      </button>
+      <button mat-mini-fab color="primary" (click)="onToggleNavBar()" *ngIf="!bIsNavBar">
+        <mat-icon>menu</mat-icon> 
+      </button>
+    </div>
+
+    <mat-card class="admin-board" *ngIf="bIsPageLaoded">
+      <mat-card-content>
+        <div fxLayout="row" fxLayout.xs="column" fxLayoutAlign="space-between center">
+          <div fxFlexFill fxFlex="50" fxFlex.xs="100" class="mb-3">
+            <mat-form-field class="full-width">
+              <input type='text' [(ngModel)]='strSearchText' matInput placeholder='Search...' (keyup)='onUpdateFilter($event)'>
+            </mat-form-field>
+          </div>
+
+          <div fxFlexFill fxFlex="50" fxFlex.xs="100" fxLayoutAlign="flex-end center" class="mb-3">
+            <button mat-stroked-button color="primary" (click)="onInvite($event)">
+              <div fxLayout fxLayoutAlign="center center">
+                <mat-icon class="mr-2">add</mat-icon>
+                Invite New User
+              </div>
+            </button>
+          </div>
+        </div>
+
+        <div class="overflow-x">
+          <div class="static-wrapper">
+            <mat-table #table [dataSource]="dataSource">
+              <!-- Position Column -->
+              <ng-container matColumnDef="position">
+                <mat-header-cell *matHeaderCellDef style="flex: 1"> No. </mat-header-cell>
+                <mat-cell *matCellDef="let element" style="flex: 1"> {{element.position}} </mat-cell>
+              </ng-container>
+
+              <!-- Email Column -->
+              <ng-container matColumnDef="email">
+                <mat-header-cell *matHeaderCellDef style="flex: 2"> Email </mat-header-cell>
+                <mat-cell *matCellDef="let element" style="flex: 2">
+                  {{element.email}}
+                </mat-cell>
+              </ng-container>
+
+              <!-- Role Column -->
+              <ng-container matColumnDef="role">
+                <mat-header-cell *matHeaderCellDef style="flex: 1"> Role </mat-header-cell>
+                <mat-cell *matCellDef="let element" style="flex: 1">
+                  <div class="capitalize">
+                    {{ element.role }}
+                  </div>
+                </mat-cell>
+              </ng-container>
+
+              <!-- Status Column -->
+              <ng-container matColumnDef="status">
+                <mat-header-cell *matHeaderCellDef style="flex: 1"> Status </mat-header-cell>
+                <mat-cell *matCellDef="let element" style="flex: 1">
+                  <div class="capitalize">
+                    {{ element.status }}
+                  </div>
+                </mat-cell>
+              </ng-container>
+
+              <!-- Actions Column -->
+              <ng-container matColumnDef="actions">
+                <mat-header-cell *matHeaderCellDef style="flex: 1"> Actions </mat-header-cell>
+                <mat-cell *matCellDef="let element" style="flex: 1">
+                  <div>
+                    <button mat-icon-button color (click)="onEditUser(element)">
+                      <mat-icon class="green-text">edit</mat-icon>
+                    </button>
+                    <button mat-icon-button color="warn" (click)="onDeleteUser(element)">
+                      <mat-icon>delete_outline</mat-icon>
+                    </button>
+                  </div>
+                </mat-cell>
+              </ng-container>
+
+              <mat-header-row *matHeaderRowDef="arrStrDisplayedColumns"></mat-header-row>
+              <mat-row *matRowDef="let row; columns: arrStrDisplayedColumns;"></mat-row>
+            </mat-table>
+
+            <mat-paginator #paginator
+              [pageSize]="5"
+              [pageSizeOptions]="[5, 10, 20]">
+            </mat-paginator>
+          </div>
+        </div>
+      </mat-card-content>
+    </mat-card>
+  </mat-sidenav-content>
+</mat-sidenav-container>

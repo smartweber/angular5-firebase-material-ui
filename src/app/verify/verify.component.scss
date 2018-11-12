@@ -1,0 +1,17 @@
+:host {
+    width: 100%;
+
+    .verify-area {
+        margin: 0 10px;
+    
+        .mat-card {
+            min-width: 280px;
+        }
+    
+        .logo {
+            height: 50px;
+            max-width: 200px;
+            margin-bottom: 1em;
+        }
+    }
+}

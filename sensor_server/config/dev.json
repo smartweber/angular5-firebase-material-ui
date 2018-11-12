@@ -1,0 +1,18 @@
+{
+	"mode": "dev",
+	"sensorType": "SensorTypes_Dev",
+	"sensorData": "SensorData_Dev",
+	"sensors": "Sensors_Dev",
+	"sensorDevices": "SensorDevices_Dev",
+	"sensorConfigs": "SensorConfigs_Dev",
+	"RawData": "RawData_Dev",
+	"processedData": "ProcessedData_Dev",
+	"analyticalData": "AnalyticalData_Dev",
+	"sensorStorages": "SensorStorage_Dev",
+	"processedStorages": "ProcessedStorage_Dev",
+	"analyticalStorages": "AnalyticalStorage_Dev",
+	"debugStorage": "DebugStorage_Dev",
+	"debugData": "DebugData_Dev",
+	"cronJobTestSensor": "CronJobTestSensor_Dev",
+	"calibrationData": "CalibrationData_Dev"
+}

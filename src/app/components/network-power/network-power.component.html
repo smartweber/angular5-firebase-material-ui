@@ -1,0 +1,5 @@
+<div class="network-power-component" fxLayout="row" fxLayoutAlign="center center">
+  <div class="wrapper" fxLayout="row" fxLayoutAlign="space-between center">
+    <div *ngFor="let power of powers" [ngClass]="{'active': power === 1, 'power-item': true}"></div>
+  </div>
+</div>

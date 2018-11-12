@@ -1,0 +1,66 @@
+:host {
+  width: 100%;
+
+  .st-category-wrapper {
+    font-size: 16px;
+  
+    .inline-radio-area {
+      display: flex;
+      flex-flow: row;
+      justify-content: space-around;
+      align-items: center;
+    }
+  
+    .sub-title {
+      margin: 0 0 1em;
+    }
+  
+    .create-param-form {
+      margin-bottom: 1em;
+    }
+  
+    .title {
+      padding: 0;
+    }
+  
+    .table-type {
+      display: flex;
+      flex-flow: row;
+  
+      img {
+        width: 160px;
+  
+        @media screen and (max-width: 568px) {
+          width: 120px;
+        }
+      }
+    }
+  
+    .params-form {
+      .row-fields {
+        margin-top: 30px;
+      }
+  
+      .title {
+        font-size: initial;
+      }
+    }
+  }
+  
+  .params-form {
+    .alert-danger {
+      background-color: transparent;
+      border-color: transparent;
+    }
+  }
+  
+  .sensor-type-link {
+    margin-top: 30px;
+  }
+  
+  .sensor-type-link {
+    a {
+      text-decoration: underline;
+    }
+  }
+}

@@ -1,0 +1,15 @@
+<div class="comment-area"  (mouseover)="onOver()" (mouseleave)="onLeave()">
+  <div class="relative full-height">
+    <div #displayElement class="text-area full-height">
+    
+    </div>
+    <div class="action-area" *ngIf="bIsHover">
+        <mat-icon class="pointer mr-2" color="primary" (click)="onEdit(false)">zoom_out_map</mat-icon>
+        <div class="edit-item pointer" fxLayout fxLayoutAlign="center center">
+          <mat-icon (click)="onEdit(true)">edit</mat-icon>
+        </div>
+    </div>
+  </div>
+</div>
+
+  

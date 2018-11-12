@@ -1,0 +1,527 @@
+{
+	"rules": {
+		".read": "( root.child('Users/staffs/' + auth.uid + '/status').val() === 'approved') || ( root.child('Users/customers/' + auth.uid + '/status').val() === 'approved') || ( root.child('Users_Dev/staffs/' + auth.uid + '/status').val() === 'approved') || ( root.child('Users_Dev/customers/' + auth.uid + '/status').val() === 'approved') || ( root.child('Users_Test/staffs/' + auth.uid + '/status').val() === 'approved') || ( root.child('Users_Test/customers/' + auth.uid + '/status').val() === 'approved')",
+		"StaffInfo": {
+			".read": "true",
+			".write": "root.child('Users/staffs').child(auth.uid).child('action/role').val() === 'admin'"
+		},
+		"CustomerPortals": {
+			".indexOn": "path",
+			".read": "true",
+			"$portalId": {
+				".write": "root.child('Users/staffs').child(auth.uid).child('action/role').val() === 'admin'"
+			}
+		},
+		"Customers": {
+			".read": "root.child('Users/staffs').child(auth.uid).child('action/role').val().matches(/(admin|debugger|operator|viewer|developer)/)",
+			".write": "root.child('Users/staffs').child(auth.uid).child('action/role').val() === 'admin'",
+			"$customerId": {
+				".read": "root.child('Users/staffs').child(auth.uid).child('action/role').val() === 'admin' || root.child('Users/customers').child(auth.uid).child('action/role').val() === 'admin'",
+				".write": "root.child('Users/staffs').child(auth.uid).child('action/role').val() === 'admin' || root.child('Users/customers').child(auth.uid).child('action/role').val() === 'admin'"
+			}
+		},
+		"Zones": {
+			".read": "(root.child('Users/customers').child(auth.uid).child('action/role').exists()) || (root.child('Users/staffs').child(auth.uid).child('action/role').val().matches(/(admin|debugger|operator|viewer|developer)/))",
+			".write": "(root.child('Users/customers').child(auth.uid).child('action/role').val() === 'admin') || (root.child('Users/customers').child(auth.uid).child('action/role').val() === 'operator') || (root.child('Users/staffs').child(auth.uid).child('action/role').val().matches(/admin|debugger|operator/))",
+			"$zoneId": {
+				".read": "(root.child('Users/customers').child(auth.uid).child('action/role').exists()) || (root.child('Users/staffs').child(auth.uid).child('action/role').val().matches(/(admin|debugger|operator|viewer)/))",
+				".write": "( (data.child('customerId').val() === root.child('Users/customers').child(auth.uid).child('customerId').val()) && ((root.child('Users/customers').child(auth.uid).child('action/role').val() === 'admin') || (root.child('Users/customers').child(auth.uid).child('action/role').val() === 'operator')) ) || (root.child('Users/staffs').child(auth.uid).child('action/role').val().matches(/(admin|debugger|operator)/))" 
+			},
+			".indexOn": "customerId"
+		},
+		"Sensors": {
+			".read": "auth !== null",
+			".indexOn": ["customerId", "sensorTypeId", "zoneId", "serialNumber"],
+			"$sensorId": {
+				".read": "( (data.child('customerId').val() === root.child('Users/customers').child(auth.uid).child('customerId').val()) && (root.child('Users/customers').child(auth.uid).child('action/role').exists()) ) || (root.child('Users/staffs').child(auth.uid).child('action/role').val().matches(/admin|debugger|operator|viewer|developer/))",
+				".write": "( (data.child('customerId').val() === root.child('Users/customers').child(auth.uid).child('customerId').val()) && ((root.child('Users/customers').child(auth.uid).child('action/role').val() === 'admin') || (root.child('Users/customers').child(auth.uid).child('action/role').val() === 'operator')) ) || (root.child('Users/staffs').child(auth.uid).child('action/role').val().matches(/(admin|debugger|operator)/))"    
+			}
+		},
+		"SensorDevices": {
+			".read": "auth !== null",
+			".write": "auth !== null"
+		},
+		"SensorTypes": {
+			".read": "auth !== null",
+			".write": "root.child('Users/staffs').child(auth.uid).child('action/role').val().matches(/admin|developer/)",
+			"$sensorTypeId": {
+				".read": "auth !== null",
+				".write": "root.child('Users/staffs').child(auth.uid).child('action/role').val().matches(/admin|developer/)",
+				"debug": {
+					".read": "root.child('Users/staffs').child(auth.uid).child('action/role').val().matches(/admin|debugger|operator|viewer/)",
+					".write": "root.child('Users/staffs').child(auth.uid).child('action/role').val().matches(/admin|debugger|operator/)"
+				}
+			}
+		},
+		"Users": {
+			".read": "(auth !== null) && ((root.child('Users/staffs').child(auth.uid).child('action/role').val() === 'admin') && (root.child('Users/staffs').child(auth.uid).child('action/status').val() === 'approved'))",
+			"staffs": {
+				".indexOn": "action/role",
+				".read": "(auth !== null) && ((root.child('Users/staffs').child(auth.uid).child('action/role').val() === 'admin') && (root.child('Users/staffs').child(auth.uid).child('action/status').val() === 'approved'))",
+				".write": "(auth !== null) && ((root.child('Users/staffs').child(auth.uid).child('action/role').val() === 'admin') && (root.child('Users/staffs').child(auth.uid).child('action/status').val() === 'approved'))",      
+				"$staffId": {
+					".read": "(auth !== null) && ((auth.uid === $staffId) || ((root.child('Users/staffs').child(auth.uid).child('action/role').val() === 'admin') && (root.child('Users/staffs').child(auth.uid).child('action/status').val() === 'approved')))",
+					".write": "(auth !== null) && ((auth.uid === $staffId) || ((root.child('Users/staffs').child(auth.uid).child('action/role').val() === 'admin') && (root.child('Users/staffs').child(auth.uid).child('action/status').val() === 'approved')))",
+					"action": {
+						".read": "(auth !== null) && ((auth.uid === $staffId) || (root.child('Users/staffs').child(auth.uid).child('action/role').val() === 'admin'))",
+						".write": "(root.child('Users/staffs').child(auth.uid).child('action/role').val() === 'admin') && (root.child('Users/staffs').child(auth.uid).child('action/status').val() === 'approved')"
+					},
+					"info": {
+						".read": "(auth !== null) && ((auth.uid === $staffId) || ((root.child('Users/staffs').child(auth.uid).child('action/role').val() === 'admin') && (root.child('Users/staffs').child(auth.uid).child('action/status').val() === 'approved')))",
+						".write": "(auth !== null) && (auth.uid === $staffId)"
+					} 
+				}
+			},
+			"customers": {
+				".indexOn": ["info/customerId", "info/email", "action/role"],
+				".read": "(((root.child('Users/staffs').child(auth.uid).child('action/role').val() === 'admin') && (root.child('Users/staffs').child(auth.uid).child('action/status').val() === 'approved')) || ((root.child('Users/customers').child(auth.uid).child('action/role').val() === 'admin') && (root.child('Users/customers').child(auth.uid).child('action/status').val() === 'approved')))",
+				".write": "(((root.child('Users/staffs').child(auth.uid).child('action/role').val() === 'admin') && (root.child('Users/staffs').child(auth.uid).child('action/status').val() === 'approved')) || ((root.child('Users/customers').child(auth.uid).child('action/role').val() === 'admin') && (root.child('Users/customers').child(auth.uid).child('action/status').val() === 'approved')))",
+				"$customerId": {
+					".read": "(auth !== null) && ((auth.uid === $customerId) || ((root.child('Users/customers').child(auth.uid).child('action/role').val() === 'admin') && (root.child('Users/customers').child(auth.uid).child('action/status').val() === 'approved')) || ((root.child('Users/staffs').child(auth.uid).child('action/role').val() === 'admin') && (root.child('Users/staffs').child(auth.uid).child('action/status').val() === 'approved')))",
+					".write": "(auth !== null) && ((auth.uid === $customerId) || ((root.child('Users_De/customers').child(auth.uid).child('action/role').val() === 'admin') && (root.child('Users/customers').child(auth.uid).child('action/status').val() === 'approved')) || ((root.child('Users/staffs').child(auth.uid).child('action/role').val() === 'admin') && (root.child('Users/staffs').child(auth.uid).child('action/status').val() === 'approved')))",
+					"action": {
+						".read": "(auth !== null) && ((auth.uid === $customerId) || ((root.child('Users/customers').child(auth.uid).child('action/role').val() === 'admin') && (root.child('Users/customers').child(auth.uid).child('action/status').val() === 'approved')) || ((root.child('Users/staffs').child(auth.uid).child('action/role').val() === 'admin') && (root.child('Users/staffs').child(auth.uid).child('action/status').val() === 'approved')))",
+						".write": "(auth !== null) && (((root.child('Users/customers').child(auth.uid).child('action/role').val() === 'admin') && (root.child('Users/customers').child(auth.uid).child('action/status').val() === 'approved')) || ((root.child('Users/staffs').child(auth.uid).child('action/role').val() === 'admin') && (root.child('Users/staffs').child(auth.uid).child('action/status').val() === 'approved')))"
+					},
+					"info": {
+						".read": "(auth !== null) && ((auth.uid === $customerId) || ((root.child('Users/customers').child(auth.uid).child('action/role').val() === 'admin') && (root.child('Users/customers').child(auth.uid).child('action/status').val() === 'approved')) || ((root.child('Users/staffs').child(auth.uid).child('action/role').val() === 'admin') && (root.child('Users/staffs').child(auth.uid).child('action/status').val() === 'approved')))",
+						".write": "(auth !== null) && (auth.uid === $customerId)"
+					}
+				}
+			}
+		},
+		"SensorData": {
+			".read": "auth !== null",
+			"status": {
+				".indexOn": "sensorTypeId",
+				".read": "(root.child('Users/customers').child(auth.uid).child('action/role').exists()) || (root.child('Users/staffs').child(auth.uid).child('action/role').val().matches(/(admin|debugger|operator|viewer)/))",
+				".write": "(root.child('Users/customers').child(auth.uid).child('action/role').val() === 'admin') || (root.child('Users/customers').child(auth.uid).child('action/role').val() === 'operator') || (root.child('Users/staffs').child(auth.uid).child('action/role').val().matches(/(admin|debugger|operator)/))",
+				"$statusId": {
+					"series": {
+						".indexOn": "timestamp"
+					}
+				}        
+			},
+			"vocAnalytics": {
+				".read": "(root.child('Users/customers').child(auth.uid).child('action/role').exists()) || (root.child('Users/staffs').child(auth.uid).child('action/role').val() === 'debugger')",
+				".write": "(root.child('Users/customers').child(auth.uid).child('action/role').val() === 'admin') || (root.child('Users/customers').child(auth.uid).child('action/role').val() === 'operator') || (root.child('Users').child('staffs').child(auth.uid).child('action/role').val() === 'debugger') || (root.child('Users/staffs').child(auth.uid).child('action/role').val() === 'admin')",
+				"$vocAnalyticsId": {
+					"series": {
+						".indexOn": "timestamp"
+					}
+				}
+			},
+			"debug": {
+				".read": "root.child('Users/staffs').child(auth.uid).child('action/role').val().matches(/(admin|debugger|operator|viewer)/)",
+				".write": "root.child('Users/staffs').child(auth.uid).child('action/role').val().matches(/(admin|debugger|operator)/)",
+				"$debugId": {
+					"series": {
+						".indexOn": "timestamp"
+					}
+				}
+			}
+		},
+		"SensorConfigs": {
+			".read": "true",
+			"$configId": {
+				".read": "true",
+				".write": "true"
+			}
+		},
+		"RawData": {
+			".read": "true",
+			".write": "true"
+		},
+		"SensorCsvs": {
+			".read": "true",
+			".write": "true"
+		},
+		"DebugData": {
+			".read": "auth !== null",
+			".write": "auth !== null",
+			"series": {
+				".indexOn": "timestamp"
+			}
+		},
+		"ProcessedData": {
+			".read": "auth !== null",
+			".write": "auth !== null",
+			"series": {
+				".indexOn": "timestamp"
+			}
+		},
+		"AnalyticalData": {
+			".read": "auth !== null",
+			".write": "auth !== null",
+			"series": {
+				".indexOn": "timestamp"
+			}
+		},
+		"Configurations": {
+			".read": "auth !== null",
+			".write": "auth !== null",
+			".indexOn": "mode"
+		},
+		"CronJobTestSensor": {
+			".read": "auth !== null",
+			".write": "auth !== null",
+			"$sensorId": {
+				"log": {
+					".indexOn": "startTimestamp"
+				}
+			}
+		},
+		"CalibrationData": {
+			".read": "auth !== null",
+			".write": "auth !== null"
+		},
+		"StaffInfo_Dev": {
+			".read": "true",
+			".write": "root.child('Users_Dev/staffs').child(auth.uid).child('action/role').val() === 'admin'"
+		},
+		"CustomerPortals_Dev": {
+			".indexOn": "path",
+			".read": "true",
+			"$portalId": {
+				".write": "root.child('Users_Dev/staffs').child(auth.uid).child('action/role').val() === 'admin'"
+			}
+		},
+		"Customers_Dev": {
+			".read": "root.child('Users_Dev/staffs').child(auth.uid).child('action/role').val().matches(/(admin|debugger|operator|viewer|developer)/)",
+			".write": "root.child('Users_Dev/staffs').child(auth.uid).child('action/role').val() === 'admin'",
+			"$customerId": {
+				".read": "root.child('Users_Dev/staffs').child(auth.uid).child('action/role').val() === 'admin' || root.child('Users_Dev/customers').child(auth.uid).child('action/role').val() === 'admin'",
+				".write": "root.child('Users_Dev/staffs').child(auth.uid).child('action/role').val() === 'admin' || root.child('Users_Dev/customers').child(auth.uid).child('action/role').val() === 'admin'"
+			}
+		},
+		"Zones_Dev": {
+			".read": "(root.child('Users_Dev/customers').child(auth.uid).child('action/role').exists()) || (root.child('Users_Dev/staffs').child(auth.uid).child('action/role').val().matches(/(admin|debugger|operator|viewer|developer)/))",
+			".write": "(root.child('Users_Dev/customers').child(auth.uid).child('action/role').val() === 'admin') || (root.child('Users_Dev/customers').child(auth.uid).child('action/role').val() === 'operator') || (root.child('Users_Dev/staffs').child(auth.uid).child('action/role').val().matches(/admin|debugger|operator/))",
+			"$zoneId": {
+				".read": "(root.child('Users_Dev/customers').child(auth.uid).child('action/role').exists()) || (root.child('Users_Dev/staffs').child(auth.uid).child('action/role').val().matches(/(admin|debugger|operator|viewer)/))",
+				".write": "( (data.child('customerId').val() === root.child('Users_Dev/customers').child(auth.uid).child('customerId').val()) && ((root.child('Users_Dev/customers').child(auth.uid).child('action/role').val() === 'admin') || (root.child('Users_Dev/customers').child(auth.uid).child('action/role').val() === 'operator')) ) || (root.child('Users_Dev/staffs').child(auth.uid).child('action/role').val().matches(/(admin|debugger|operator)/))"
+			},
+			".indexOn": "customerId"
+		},
+		"Sensors_Dev": {
+			".read": "auth !== null",
+			".indexOn": ["customerId", "sensorTypeId", "zoneId", "serialNumber"],
+			"$sensorId": {
+				".read": "( (data.child('customerId').val() === root.child('Users_Dev/customers').child(auth.uid).child('customerId').val()) && (root.child('Users_Dev/customers').child(auth.uid).child('action/role').exists()) ) || (root.child('Users_Dev/staffs').child(auth.uid).child('action/role').val().matches(/admin|debugger|operator|viewer|developer/))",
+				".write": "( (data.child('customerId').val() === root.child('Users_Dev/customers').child(auth.uid).child('customerId').val()) && ((root.child('Users_Dev/customers').child(auth.uid).child('action/role').val() === 'admin') || (root.child('Users_Dev/customers').child(auth.uid).child('action/role').val() === 'operator')) ) || (root.child('Users_Dev/staffs').child(auth.uid).child('action/role').val().matches(/(admin|debugger|operator)/))"          
+			}
+		},
+		"SensorDevices_Dev": {
+			".read": "auth !== null",
+			".write": "auth !== null"
+		},
+		"SensorTypes_Dev": {
+			".read": "auth !== null",
+			".write": "root.child('Users_Dev/staffs').child(auth.uid).child('action/role').val().matches(/admin|developer/)",
+			"$sensorTypeId": {
+				".read": "auth !== null",
+				".write": "root.child('Users_Dev/staffs').child(auth.uid).child('action/role').val().matches(/admin|developer/)",
+				"debug": {
+					".read": "root.child('Users_Dev/staffs').child(auth.uid).child('action/role').val().matches(/admin|debugger|operator|viewer/)",
+					".write": "root.child('Users_Dev/staffs').child(auth.uid).child('action/role').val().matches(/admin|debugger|operator/)"
+				}
+			}
+		},
+		"Users_Dev": {
+			".read": "(auth !== null) && ((root.child('Users_Dev/staffs').child(auth.uid).child('action/role').val() === 'admin') && (root.child('Users_Dev/staffs').child(auth.uid).child('action/status').val() === 'approved'))",
+			"staffs": {
+				".indexOn": "action/role",
+				".read": "(auth !== null) && ((root.child('Users_Dev/staffs').child(auth.uid).child('action/role').val() === 'admin') && (root.child('Users_Dev/staffs').child(auth.uid).child('action/status').val() === 'approved'))",
+				".write": "(auth !== null) && ((root.child('Users_Dev/staffs').child(auth.uid).child('action/role').val() === 'admin') && (root.child('Users_Dev/staffs').child(auth.uid).child('action/status').val() === 'approved'))",      
+				"$staffId": {
+					".read": "(auth !== null) && ((auth.uid === $staffId) || ((root.child('Users_Dev/staffs').child(auth.uid).child('action/role').val() === 'admin') && (root.child('Users_Dev/staffs').child(auth.uid).child('action/status').val() === 'approved')))",
+					".write": "(auth !== null) && ((auth.uid === $staffId) || ((root.child('Users_Dev/staffs').child(auth.uid).child('action/role').val() === 'admin') && (root.child('Users_Dev/staffs').child(auth.uid).child('action/status').val() === 'approved')))",
+					"action": {
+						".read": "(auth !== null) && ((auth.uid === $staffId) || (root.child('Users_Dev/staffs').child(auth.uid).child('action/role').val() === 'admin'))",
+						".write": "(root.child('Users_Dev/staffs').child(auth.uid).child('action/role').val() === 'admin') && (root.child('Users_Dev/staffs').child(auth.uid).child('action/status').val() === 'approved')"
+					},
+					"info": {
+						".read": "(auth !== null) && ((auth.uid === $staffId) || ((root.child('Users_Dev/staffs').child(auth.uid).child('action/role').val() === 'admin') && (root.child('Users_Dev/staffs').child(auth.uid).child('action/status').val() === 'approved')))",
+						".write": "(auth !== null) && (auth.uid === $staffId)"
+					} 
+				}
+			},
+			"customers": {
+				".indexOn": ["info/customerId", "info/email", "action/role"],
+				".read": "(((root.child('Users_Dev/staffs').child(auth.uid).child('action/role').val() === 'admin') && (root.child('Users_Dev/staffs').child(auth.uid).child('action/status').val() === 'approved')) || ((root.child('Users_Dev/customers').child(auth.uid).child('action/role').val() === 'admin') && (root.child('Users_Dev/customers').child(auth.uid).child('action/status').val() === 'approved')))",
+				".write": "(((root.child('Users_Dev/staffs').child(auth.uid).child('action/role').val() === 'admin') && (root.child('Users_Dev/staffs').child(auth.uid).child('action/status').val() === 'approved')) || ((root.child('Users_Dev/customers').child(auth.uid).child('action/role').val() === 'admin') && (root.child('Users_Dev/customers').child(auth.uid).child('action/status').val() === 'approved')))",
+				"$customerId": {
+					".read": "(auth !== null) && ((auth.uid === $customerId) || ((root.child('Users_Dev/customers').child(auth.uid).child('action/role').val() === 'admin') && (root.child('Users_Dev/customers').child(auth.uid).child('action/status').val() === 'approved')) || ((root.child('Users_Dev/staffs').child(auth.uid).child('action/role').val() === 'admin') && (root.child('Users_Dev/staffs').child(auth.uid).child('action/status').val() === 'approved')))",
+					".write": "(auth !== null) && ((auth.uid === $customerId) || ((root.child('Users_Dev/customers').child(auth.uid).child('action/role').val() === 'admin') && (root.child('Users_Dev/customers').child(auth.uid).child('action/status').val() === 'approved')) || ((root.child('Users_Dev/staffs').child(auth.uid).child('action/role').val() === 'admin') && (root.child('Users_Dev/staffs').child(auth.uid).child('action/status').val() === 'approved')))",
+					"action": {
+						".read": "(auth !== null) && ((auth.uid === $customerId) || ((root.child('Users_Dev/customers').child(auth.uid).child('action/role').val() === 'admin') && (root.child('Users_Dev/customers').child(auth.uid).child('action/status').val() === 'approved')) || ((root.child('Users_Dev/staffs').child(auth.uid).child('action/role').val() === 'admin') && (root.child('Users_Dev/staffs').child(auth.uid).child('action/status').val() === 'approved')))",
+						".write": "(auth !== null) && (((root.child('Users_Dev/customers').child(auth.uid).child('action/role').val() === 'admin') && (root.child('Users_Dev/customers').child(auth.uid).child('action/status').val() === 'approved')) || ((root.child('Users_Dev/staffs').child(auth.uid).child('action/role').val() === 'admin') && (root.child('Users_Dev/staffs').child(auth.uid).child('action/status').val() === 'approved')))"
+					},
+					"info": {
+						".read": "(auth !== null) && ((auth.uid === $customerId) || ((root.child('Users_Dev/customers').child(auth.uid).child('action/role').val() === 'admin') && (root.child('Users_Dev/customers').child(auth.uid).child('action/status').val() === 'approved')) || ((root.child('Users_Dev/staffs').child(auth.uid).child('action/role').val() === 'admin') && (root.child('Users_Dev/staffs').child(auth.uid).child('action/status').val() === 'approved')))",
+						".write": "(auth !== null) && (auth.uid === $customerId)"
+					}
+				}
+			}
+		},
+		"SensorData_Dev": {
+			".read": "auth !== null",
+			"status": {
+				".indexOn": "sensorTypeId",
+				".read": "(root.child('Users_Dev/customers').child(auth.uid).child('action/role').exists()) || (root.child('Users_Dev/staffs').child(auth.uid).child('action/role').val().matches(/(admin|debugger|operator|viewer)/))",
+				".write": "(root.child('Users_Dev/customers').child(auth.uid).child('action/role').val() === 'admin') || (root.child('Users_Dev/customers').child(auth.uid).child('action/role').val() === 'operator') || (root.child('Users_Dev/staffs').child(auth.uid).child('action/role').val().matches(/(admin|debugger|operator)/))",
+				"$statusId": {
+					"series": {
+						".indexOn": "timestamp"
+					}
+				}        
+			},
+			"vocAnalytics": {
+				".read": "(root.child('Users_Dev/customers').child(auth.uid).child('action/role').exists()) || (root.child('Users_Dev/staffs').child(auth.uid).child('action/role').val() === 'debugger')",
+				".write": "(root.child('Users_Dev/customers').child(auth.uid).child('action/role').val() === 'admin') || (root.child('Users_Dev/customers').child(auth.uid).child('action/role').val() === 'operator') || (root.child('Users_Dev').child('staffs').child(auth.uid).child('action/role').val() === 'debugger') || (root.child('Users_Dev/staffs').child(auth.uid).child('action/role').val() === 'admin')",
+				"$vocAnalyticsId": {
+					"series": {
+						".indexOn": "timestamp"
+					}
+				}
+			},
+			"debug": {
+				".read": "root.child('Users_Dev/staffs').child(auth.uid).child('action/role').val().matches(/(admin|debugger|operator|viewer)/)",
+				".write": "root.child('Users_Dev/staffs').child(auth.uid).child('action/role').val().matches(/(admin|debugger|operator)/)",
+				"$debugId": {
+					"series": {
+						".indexOn": "timestamp"
+					}
+				}
+			}
+		},
+		"SensorConfigs_Dev": {
+			".read": "true",
+			"$configId": {
+				".read": "true",
+				".write": "true"
+			}
+		},
+		"RawData_Dev": {
+			".read": "true",
+			".write": "true"
+		},
+		"SensorCsvs_Dev": {
+			".read": "true",
+			".write": "true"
+		},
+		"DebugData_Dev": {
+			".read": "auth !== null",
+			".write": "auth !== null",
+			"series": {
+				".indexOn": "timestamp"
+			}
+		},
+		"ProcessedData_Dev": {
+			".read": "auth !== null",
+			".write": "auth !== null",
+			"series": {
+				".indexOn": "timestamp"
+			}
+		},
+		"AnalyticalData_Dev": {
+			".read": "auth !== null",
+			".write": "auth !== null",
+			"series": {
+				".indexOn": "timestamp"
+			}
+		},
+		"Configurations_Dev": {
+			".read": "auth !== null",
+			".write": "auth !== null",
+			".indexOn": "mode"
+		},
+		"CronJobTestSensor_Dev": {
+			".read": "auth !== null",
+			".write": "auth !== null",
+			"$sensorId": {
+				"log": {
+					".indexOn": "startTimestamp"
+				}
+			}
+		},
+		"CalibrationData_Dev": {
+			".read": "auth !== null",
+			".write": "auth !== null"
+		},
+		"StaffInfo_Test": {
+			".read": "true",
+			".write": "root.child('Users_Test/staffs').child(auth.uid).child('action/role').val() === 'admin'"
+		},
+		"CustomerPortals_Test": {
+			".indexOn": "path",
+			".read": "true",
+			"$portalId": {
+				".write": "root.child('Users_Test/staffs').child(auth.uid).child('action/role').val() === 'admin'"
+			}
+		},
+		"Customers_Test": {
+			".read": "root.child('Users_Test/staffs').child(auth.uid).child('action/role').val().matches(/(admin|debugger|operator|viewer|developer)/)",
+			".write": "root.child('Users_Test/staffs').child(auth.uid).child('action/role').val() === 'admin'",
+			"$customerId": {
+				".read": "root.child('Users_Test/staffs').child(auth.uid).child('action/role').val() === 'admin' || root.child('Users_Test/customers').child(auth.uid).child('action/role').val() === 'admin'",
+				".write": "root.child('Users_Test/staffs').child(auth.uid).child('action/role').val() === 'admin' || root.child('Users_Test/customers').child(auth.uid).child('action/role').val() === 'admin'"
+			}
+		},
+		"Zones_Test": {
+			".read": "(root.child('Users_Test/customers').child(auth.uid).child('action/role').exists()) || (root.child('Users_Test/staffs').child(auth.uid).child('action/role').val().matches(/(admin|debugger|operator|viewer|developer)/))",
+			".write": "(root.child('Users_Test/customers').child(auth.uid).child('action/role').val() === 'admin') || (root.child('Users_Test/customers').child(auth.uid).child('action/role').val() === 'operator') || (root.child('Users_Test/staffs').child(auth.uid).child('action/role').val().matches(/admin|debugger|operator/))",
+			"$zoneId": {
+				".read": "(root.child('Users_Test/customers').child(auth.uid).child('action/role').exists()) || (root.child('Users_Test/staffs').child(auth.uid).child('action/role').val().matches(/(admin|debugger|operator|viewer)/))",
+				".write": "( (data.child('customerId').val() === root.child('Users_Test/customers').child(auth.uid).child('customerId').val()) && ((root.child('Users_Test/customers').child(auth.uid).child('action/role').val() === 'admin') || (root.child('Users_Test/customers').child(auth.uid).child('action/role').val() === 'operator')) ) || (root.child('Users_Test/staffs').child(auth.uid).child('action/role').val().matches(/(admin|debugger|operator)/))"      
+			},
+			".indexOn": "customerId"
+		},
+		"Sensors_Test": {
+			".read": "auth !== null",
+			".indexOn": ["customerId", "sensorTypeId", "zoneId", "serialNumber"],
+			"$sensorId": {
+				".read": "( (data.child('customerId').val() === root.child('Users_Test/customers').child(auth.uid).child('customerId').val()) && (root.child('Users_Test/customers').child(auth.uid).child('action/role').exists()) ) || (root.child('Users_Test/staffs').child(auth.uid).child('action/role').val().matches(/admin|debugger|operator|viewer|developer/))",
+				".write": "( (data.child('customerId').val() === root.child('Users_Test/customers').child(auth.uid).child('customerId').val()) && ((root.child('Users_Test/customers').child(auth.uid).child('action/role').val() === 'admin') || (root.child('Users_Test/customers').child(auth.uid).child('action/role').val() === 'operator')) ) || (root.child('Users_Test/staffs').child(auth.uid).child('action/role').val().matches(/(admin|debugger|operator)/))"       
+			}
+		},
+		"SensorDevices_Test": {
+			".read": "auth !== null",
+			".write": "auth !== null"
+		},
+		"SensorTypes_Test": {
+			".read": "auth !== null",
+			".write": "root.child('Users_Test/staffs').child(auth.uid).child('action/role').val().matches(/admin|developer/)",
+			"$sensorTypeId": {
+				".read": "auth !== null",
+				".write": "root.child('Users_Test/staffs').child(auth.uid).child('action/role').val().matches(/admin|developer/)",
+				"debug": {
+					".read": "root.child('Users_Test/staffs').child(auth.uid).child('action/role').val().matches(/admin|debugger|operator|viewer/)",
+					".write": "root.child('Users_Test/staffs').child(auth.uid).child('action/role').val().matches(/admin|debugger|operator/)"
+				}
+			}
+		},
+		"Users_Test": {
+			".read": "(auth !== null) && ((root.child('Users_Test/staffs').child(auth.uid).child('action/role').val() === 'admin') && (root.child('Users_Test/staffs').child(auth.uid).child('action/status').val() === 'approved'))",
+			"staffs": {
+				".indexOn": "action/role",
+				".read": "(auth !== null) && ((root.child('Users_Test/staffs').child(auth.uid).child('action/role').val() === 'admin') && (root.child('Users_Test/staffs').child(auth.uid).child('action/status').val() === 'approved'))",
+				".write": "(auth !== null) && ((root.child('Users_Test/staffs').child(auth.uid).child('action/role').val() === 'admin') && (root.child('Users_Test/staffs').child(auth.uid).child('action/status').val() === 'approved'))",      
+				"$staffId": {
+					".read": "(auth !== null) && ((auth.uid === $staffId) || ((root.child('Users_Test/staffs').child(auth.uid).child('action/role').val() === 'admin') && (root.child('Users_Test/staffs').child(auth.uid).child('action/status').val() === 'approved')))",
+					".write": "(auth !== null) && ((auth.uid === $staffId) || ((root.child('Users_Test/staffs').child(auth.uid).child('action/role').val() === 'admin') && (root.child('Users_Test/staffs').child(auth.uid).child('action/status').val() === 'approved')))",
+					"action": {
+						".read": "(auth !== null) && ((auth.uid === $staffId) || (root.child('Users_Test/staffs').child(auth.uid).child('action/role').val() === 'admin'))",
+						".write": "(root.child('Users_Test/staffs').child(auth.uid).child('action/role').val() === 'admin') && (root.child('Users_Test/staffs').child(auth.uid).child('action/status').val() === 'approved')"
+					},
+					"info": {
+						".read": "(auth !== null) && ((auth.uid === $staffId) || ((root.child('Users_Test/staffs').child(auth.uid).child('action/role').val() === 'admin') && (root.child('Users_Test/staffs').child(auth.uid).child('action/status').val() === 'approved')))",
+						".write": "(auth !== null) && (auth.uid === $staffId)"
+					} 
+				}
+			},
+			"customers": {
+				".indexOn": ["info/customerId", "info/email", "action/role"],
+				".read": "(((root.child('Users_Test/staffs').child(auth.uid).child('action/role').val() === 'admin') && (root.child('Users_Test/staffs').child(auth.uid).child('action/status').val() === 'approved')) || ((root.child('Users_Test/customers').child(auth.uid).child('action/role').val() === 'admin') && (root.child('Users_Test/customers').child(auth.uid).child('action/status').val() === 'approved')))",
+				".write": "(((root.child('Users_Test/staffs').child(auth.uid).child('action/role').val() === 'admin') && (root.child('Users_Test/staffs').child(auth.uid).child('action/status').val() === 'approved')) || ((root.child('Users_Test/customers').child(auth.uid).child('action/role').val() === 'admin') && (root.child('Users_Test/customers').child(auth.uid).child('action/status').val() === 'approved')))",
+				"$customerId": {
+					".read": "(auth !== null) && ((auth.uid === $customerId) || ((root.child('Users_Test/customers').child(auth.uid).child('action/role').val() === 'admin') && (root.child('Users_Test/customers').child(auth.uid).child('action/status').val() === 'approved')) || ((root.child('Users_Test/staffs').child(auth.uid).child('action/role').val() === 'admin') && (root.child('Users_Test/staffs').child(auth.uid).child('action/status').val() === 'approved')))",
+					".write": "(auth !== null) && ((auth.uid === $customerId) || ((root.child('Users_Test/customers').child(auth.uid).child('action/role').val() === 'admin') && (root.child('Users_Test/customers').child(auth.uid).child('action/status').val() === 'approved')) || ((root.child('Users_Test/staffs').child(auth.uid).child('action/role').val() === 'admin') && (root.child('Users_Test/staffs').child(auth.uid).child('action/status').val() === 'approved')))",
+					"action": {
+						".read": "(auth !== null) && ((auth.uid === $customerId) || ((root.child('Users_Test/customers').child(auth.uid).child('action/role').val() === 'admin') && (root.child('Users_Test/customers').child(auth.uid).child('action/status').val() === 'approved')) || ((root.child('Users_Test/staffs').child(auth.uid).child('action/role').val() === 'admin') && (root.child('Users_Test/staffs').child(auth.uid).child('action/status').val() === 'approved')))",
+						".write": "(auth !== null) && (((root.child('Users_Test/customers').child(auth.uid).child('action/role').val() === 'admin') && (root.child('Users_Test/customers').child(auth.uid).child('action/status').val() === 'approved')) || ((root.child('Users_Test/staffs').child(auth.uid).child('action/role').val() === 'admin') && (root.child('Users_Test/staffs').child(auth.uid).child('action/status').val() === 'approved')))"
+					},
+					"info": {
+						".read": "(auth !== null) && ((auth.uid === $customerId) || ((root.child('Users_Test/customers').child(auth.uid).child('action/role').val() === 'admin') && (root.child('Users_Test/customers').child(auth.uid).child('action/status').val() === 'approved')) || ((root.child('Users_Test/staffs').child(auth.uid).child('action/role').val() === 'admin') && (root.child('Users_Test/staffs').child(auth.uid).child('action/status').val() === 'approved')))",
+						".write": "(auth !== null) && (auth.uid === $customerId)"
+					}
+				}
+			}
+		},
+		"SensorData_Test": {
+			".read": "auth !== null",
+			"status": {
+				".indexOn": "sensorTypeId",
+				".read": "(root.child('Users_Test/customers').child(auth.uid).child('action/role').exists()) || (root.child('Users_Test/staffs').child(auth.uid).child('action/role').val().matches(/(admin|debugger|operator|viewer)/))",
+				".write": "(root.child('Users_Test/customers').child(auth.uid).child('action/role').val() === 'admin') || (root.child('Users_Test/customers').child(auth.uid).child('action/role').val() === 'operator') || (root.child('Users_Test/staffs').child(auth.uid).child('action/role').val().matches(/(admin|debugger|operator)/))",
+				"$statusId": {
+					"series": {
+						".indexOn": "timestamp"
+					}
+				}        
+			},
+			"vocAnalytics": {
+				".read": "(root.child('Users_Test/customers').child(auth.uid).child('action/role').exists()) || (root.child('Users_Test/staffs').child(auth.uid).child('action/role').val() === 'debugger')",
+				".write": "(root.child('Users_Test/customers').child(auth.uid).child('action/role').val() === 'admin') || (root.child('Users_Test/customers').child(auth.uid).child('action/role').val() === 'operator') || (root.child('Users_Test').child('staffs').child(auth.uid).child('action/role').val() === 'debugger') || (root.child('Users_Test/staffs').child(auth.uid).child('action/role').val() === 'admin')",
+				"$vocAnalyticsId": {
+					"series": {
+						".indexOn": "timestamp"
+					}
+				}
+			},
+			"debug": {
+				".read": "root.child('Users_Test/staffs').child(auth.uid).child('action/role').val().matches(/(admin|debugger|operator|viewer)/)",
+				".write": "root.child('Users_Test/staffs').child(auth.uid).child('action/role').val().matches(/(admin|debugger|operator)/)",
+				"$debugId": {
+					"series": {
+						".indexOn": "timestamp"
+					}
+				}
+			}
+		},
+		"SensorConfigs_Test": {
+			".read": "true",
+			"$configId": {
+				".read": "true",
+				".write": "true"
+			}
+		},
+		"RawData_Test": {
+			".read": "true",
+			".write": "true"
+		},
+		"SensorCsvs_Test": {
+			".read": "true",
+			".write": "true"
+		},
+		"DebugData_Test": {
+			".read": "auth !== null",
+			".write": "auth !== null",
+			"series": {
+				".indexOn": "timestamp"
+			}
+		},
+		"ProcessedData_Test": {
+			".read": "auth !== null",
+			".write": "auth !== null",
+			"series": {
+				".indexOn": "timestamp"
+			}
+		},
+		"AnalyticalData_Test": {
+			".read": "auth !== null",
+			".write": "auth !== null",
+			"series": {
+				".indexOn": "timestamp"
+			}
+		},
+		"Configurations_Test": {
+			".read": "auth !== null",
+			".write": "auth !== null",
+			".indexOn": "mode"
+		},
+		"CronJobTestSensor_Test": {
+			".read": "auth !== null",
+			".write": "auth !== null",
+			"$sensorId": {
+				"log": {
+					".indexOn": "startTimestamp"
+				}
+			}
+		},
+		"CalibrationData_Test": {
+			".read": "auth !== null",
+			".write": "auth !== null"
+		}
+	}
+}

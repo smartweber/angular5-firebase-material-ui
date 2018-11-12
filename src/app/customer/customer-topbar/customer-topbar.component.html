@@ -1,0 +1,25 @@
+<div class="customer-topbar-wrap">
+	<div class="text-center title pb-4 pt-5">Customers</div>
+
+	<div fxLayout fxLayoutAlign="center center">
+		<mat-radio-group [(ngModel)]="status">
+			<mat-radio-button color="primary" class="mr-3" [value]="1" (change)="onViewTypeChange($event)">
+				<div fxLayout fxLayoutAlign="center center">
+					<mat-icon class="mr-1">
+						format_list_bulleted
+					</mat-icon>
+					<div>List</div>
+				</div>
+			</mat-radio-button>
+
+			<mat-radio-button color="primary"  [value]="0" (change)="onViewTypeChange($event)">
+				<div fxLayout fxLayoutAlign="center center">
+					<mat-icon class="mr-1">
+						pin_drop
+					</mat-icon>
+					<div>Map</div>
+				</div>
+			</mat-radio-button>
+		</mat-radio-group>
+	</div>
+</div>

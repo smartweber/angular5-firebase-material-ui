@@ -1,0 +1,17 @@
+<mat-card class='detail-viewer-container p-1'>
+  <mat-card-content>
+    <mat-list>
+      <mat-list-item>
+        <mat-icon mat-list-icon>title</mat-icon>
+        <h4 mat-line>Name</h4>
+        <p mat-line> {{ strName }} </p>
+      </mat-list-item>
+
+      <mat-list-item class='mt-3'>
+        <mat-icon mat-list-icon>description</mat-icon>
+        <h4 mat-line>Description</h4>
+        <p mat-line class="description-content" *ngIf="strDescription"> {{ strDescription }} </p>
+      </mat-list-item>
+    </mat-list>
+  </mat-card-content>
+</mat-card>

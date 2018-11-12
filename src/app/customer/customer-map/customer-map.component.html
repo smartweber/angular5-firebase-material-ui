@@ -1,0 +1,26 @@
+<div class="customer-map-wrap" [ngClass]="{'border-wrap': nIsBorder === 1}">
+    <agm-map
+    [zoom]="16"
+    [mapTypeControl]="true"
+    [fitBounds]="latlngbounds"
+    [streetViewControl]="true">
+        <agm-marker 
+            *ngFor="let pos of positions"
+            (markerClick)="clickMarker(pos.customerKey, pos.zoneKey, pos.sensorKey)"
+            [iconUrl]="pos.icon"
+            [latitude]="pos.position[0]"
+            [longitude]="pos.position[1]"
+            [label]="pos.label"
+            >
+        </agm-marker >
+        <agm-polyline *ngFor="let path of paths"
+        (lineClick)="clickLine(path[0].customerKey, path[0].zoneKey)"
+        [strokeColor]="path[0].zoneColor"
+        [strokeWeight]="3">
+            <agm-polyline-point [latitude]="path[0].lat" [longitude]="path[0].lng">
+            </agm-polyline-point>
+            <agm-polyline-point [latitude]="path[1].lat" [longitude]="path[1].lng">
+            </agm-polyline-point>
+        </agm-polyline>
+    </agm-map>
+</div>

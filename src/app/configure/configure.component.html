@@ -1,0 +1,265 @@
+
+<div class="main-app omniscent-view p-3">
+  <div class="omniscent-title" fxLayout fxLayoutAlign="space-between center">
+    <button mat-mini-fab color="primary" class="mr-1" (click)="onBack()">
+      <mat-icon>keyboard_return</mat-icon>
+    </button>
+    <div>
+      Configuration View
+    </div>
+    <div></div>
+  </div>
+  
+  <mat-tab-group *ngIf="bIsLoadData; else loadEle">
+    <mat-tab label="{{ arrStrDataTypes[nDataType] }}" *ngFor="let config of arrObjConfigData; let nDataType=index;">
+      <div class="m-3" *ngIf="!arrBIsConfig[nDataType]">
+        <mat-card>
+          <div class="alert alert-info text-center" role="alert">
+            <strong>Empty!</strong> There is no configuration.
+          </div>
+        </mat-card>
+      </div>
+
+      <div class="m-3" *ngIf="arrBIsConfig[nDataType]">
+        <div class="cards-wrapper">
+          <mat-card>
+            <mat-card-title>Setting Parameters</mat-card-title>
+            <mat-card-subtitle>
+              <div fxLayout="row" fxLayout.xs="column" fxLayoutAlign="space-between center">
+                <div fxFlex="50" fxFlex.xs="100" *ngIf="config?.Num_of_Cycle">
+                  <h6>Run Number: {{ config?.Num_of_Cycle }}</h6>
+                </div>
+    
+                <div fxFlex="50" fxFlex.xs="100" *ngIf="config?.Num_of_Step">
+                  <h6>Step Number: {{ config?.Num_of_Step }}</h6>
+                </div>
+              </div>
+
+              <div fxLayout="row" fxLayout.xs="column" fxLayoutAlign="space-between center">
+                <div fxFlex="50" fxFlex.xs="100" *ngIf="config?.Sampling_Time">
+                  <h6>Sampling Time(hrs): {{ config?.Sampling_Time }}</h6>
+                </div>
+    
+                <div fxFlex="50" fxFlex.xs="100" *ngIf="config?.Idle_Time">
+                  <h6>Idle time between each run (s): {{ config?.Idle_Time }}</h6>
+                </div>
+              </div>
+            </mat-card-subtitle>
+          </mat-card>
+        </div>
+
+        <div class="cards-wrapper" *ngIf="strCurrentUserType === arrStrUserTypes[0]">
+          <mat-card *ngIf="strConfigurationFileName">
+            <mat-card-subtitle>
+              <strong>Configuration File:</strong> {{ strConfigurationFileName }}
+            </mat-card-subtitle>
+          </mat-card>
+
+          <mat-card *ngFor="let configItem of config['data']; let i=index;">
+              <mat-card-title>Step-{{ i + 1 }}</mat-card-title>
+              <mat-card-subtitle>
+                Step Action: {{ configItem?.stepAction }}
+              </mat-card-subtitle>
+
+              <mat-card-content class="content">
+              <div class="table-responsive" *ngIf="configItem?.stepAction === arrStrStepActions[3]">
+                <table class="table table-bordered">
+                  <thead>
+                    <tr>
+                      <th>Chromatogram</th>
+                      <th *ngIf="nModalType === 0">Calibration Data</th>
+                      <th>Selected processed data</th>
+                      <th *ngIf="nModalType === 0">Flow sensor enabled</th>
+                      <th>Separation start time in the Separation step (s)</th>
+                      <th>Total sampling time (hrs)</th>
+                    </tr>
+                  </thead>
+
+                  <tbody>
+                    <tr>
+                      <td>
+                        <div *ngIf="(!configItem || (configItem && configItem['chroma'] < 0));else chromaViewEl">
+                          N/A
+                        </div>
+
+                        <ng-template #chromaViewEl>
+                          Step{{ configItem?.chroma }} {{ config['data'][configItem['chroma'] - 1]['Step_Type'] }}
+                        </ng-template>
+                      </td>
+                      <td *ngIf="nModalType === 0">
+                        <div *ngIf="(!configItem || (configItem && configItem['calib'] < 0));else calibViewEl">
+                          N/A
+                        </div>
+
+                        <ng-template #calibViewEl>
+                          Step{{ configItem?.calib }} {{ config['data'][configItem['calib'] - 1]['Step_Type'] }}
+                        </ng-template>
+                      </td>
+                      <td>
+                        <div *ngIf="(!configItem || (configItem && configItem['processed'] < 0));else processedViewEl">
+                          N/A
+                        </div>
+
+                        <ng-template #processedViewEl>
+                          Step{{ configItem?.processed }} {{ config['data'][configItem['processed'] - 1]['stepAction'] }}
+                        </ng-template>
+                      </td>
+                      <td *ngIf="nModalType === 0">{{ configItem?.enabled }}</td>
+                      <td>{{ configItem?.start }}</td>
+                      <td>{{ configItem?.total }}</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+
+              <div class="table-responsive" *ngIf="configItem['stepAction'] === arrStrStepActions[2]">
+                <table class="table table-bordered">
+                  <thead>
+                    <tr>
+                      <th>No</th>
+                      <th>Data to be uploaded</th>
+                    </tr>
+                  </thead>
+                    
+                  <tbody>
+                    <tr *ngFor="let uploadData of configItem['uploads']; let uploadedInd=index;">
+                      <td>{{ uploadedInd + 1 }}</td>
+                      <td>
+                        <div *ngIf="(!uploadData || (uploadData && uploadData['step'] < 0));else uploadDataViewEl">
+                          N/A
+                        </div>
+
+                        <ng-template #uploadDataViewEl>
+                          Step{{ uploadData?.step }} {{ config['data'][uploadData['step'] - 1]['Step_Type'] }}
+                        </ng-template>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+
+              <div class="table-responsive" *ngIf="configItem['stepAction'] === arrStrStepActions[1]">
+                <table class="table table-bordered">
+                  <thead>
+                    <tr>
+                      <th>Algorithm</th>
+                      <th>Chromatogram</th>
+                      <th *ngIf="nModalType === 0">Calibration Data</th>
+                    </tr>
+                  </thead>
+
+                  <tbody>
+                    <tr>
+                      <td>{{ configItem?.algorithm }}</td>
+                      <td>
+                        <div *ngIf="(!configItem || (configItem && configItem['chroma'] < 0));else chromaDataViewEl">
+                          N/A
+                        </div>
+
+                        <ng-template #chromaDataViewEl>
+                          Step{{ configItem?.chroma }} {{ config['data'][configItem['chroma'] - 1]['Step_Type'] }}
+                        </ng-template>
+                      </td>
+                      <td *ngIf="nModalType === 0">
+                        <div *ngIf="(!configItem || (configItem && configItem['calib'])) < 0;else calibDataViewEl">
+                          N/A
+                        </div>
+
+                        <ng-template #calibDataViewEl>
+                          Step{{ configItem?.calib }} {{ config['data'][configItem['calib'] - 1]['Step_Type'] }}
+                        </ng-template>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+
+              <div class="table-responsive" *ngIf="configItem['stepAction'] === arrStrStepActions[0]">
+
+                <table class="table table-bordered">
+                  <thead>
+                    <tr>
+                      <th>Params</th>
+                      <th>T_idle</th>
+                      <th>T_target</th>
+                      <th>t1</th>
+                      <th>t2</th>
+                      <th>t3</th>
+                    </tr>
+                  </thead>
+
+                  <tbody>
+                    <tr *ngFor="let row of arrObjTKeyTable[nDataType]['rows'];let rowIndex = index;">
+                      <td>
+                        <div *ngIf="strCurrentDataType === arrStrDataTypes[1]">
+                          {{ row }}
+                        </div>
+                        
+                        <div *ngIf="strCurrentDataType !== arrStrDataTypes[1]">
+                          <div *ngIf="row === 'KP1'">
+                            KPA
+                          </div>
+                          <div *ngIf="row === 'KP3'">
+                            KPB
+                          </div>
+                          <div *ngIf="row !== 'KP1' && row !== 'KP3'">
+                            {{ row }}
+                          </div>
+                        </div>
+                      </td>
+                      <td *ngFor="let header of arrObjTKeyTable[nDataType]['headers']">
+                        {{ configItem && configItem[row] ? configItem[row][header] : 'N/A' }}
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+
+                <div class="container-fluid">
+                  <div class="row">
+                    <div class="col-sm-6">
+                      <strong>Save Data: </strong><span class="capitalize">{{ configItem?.Save_Data ? 'Yes' : 'No' }}</span>
+                    </div>
+  
+                    <div class="col-sm-6">
+                      <strong>Flow Sensor: </strong><span class="capitalize">{{ configItem?.Amp_Enable ? 'Enabled' : 'Diabled' }}</span>
+                    </div>
+                  </div>
+  
+                  <div class="row">
+                    <div class="col-sm-6">
+                      <strong>Total Run time(s): </strong>{{ configItem?.Total_Run_Time }}
+                    </div>
+  
+                    <div class="col-sm-6">
+                      <strong>Step Category: </strong>{{ configItem?.Step_Type }}
+                    </div>
+                  </div>
+
+                  <div class="row" *ngIf="nModalType === 1">
+                    <div class="col-sm-6">
+                      <strong>Target board temperature (°C): </strong>{{ configItem?.Target_Board_Temp }}
+                    </div>
+
+                    <div class="col-sm-6">
+                      <strong>Board temperature control: </strong>{{ (configItem?.Board_Temp_Control === 1) ? 'On' : 'Off' }}
+                    </div>
+
+                    <div class="col-sm-6">
+                      <strong>Fan control: </strong>{{ (configItem?.Fan_Control === 1) ? 'On' : 'Off' }}
+                    </div>
+                  </div>
+                </div>
+              </div>
+              </mat-card-content>
+            </mat-card>
+        </div>
+      </div>
+    </mat-tab>
+  </mat-tab-group>
+
+  <ng-template #loadEle>
+    <div class="full-width flex-wrapper">
+      <mat-spinner></mat-spinner>
+    </div>  
+  </ng-template>
+</div>

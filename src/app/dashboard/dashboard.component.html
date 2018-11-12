@@ -1,0 +1,49 @@
+<div class="container dashboard-area p-3" *ngIf="bIsLoading">
+  <mat-card class="wrapper">
+
+    <button
+      *ngIf="strUserRole === arrStrUserRoles[0]"
+      mat-button
+      class="btn btn-primary" 
+      (click)="gotoAdmin()"
+    >
+      <div fxLayou fxLayoutAlign="center center">
+        Admins
+      </div>
+    </button>
+
+    <button
+      *ngIf="strUserType === arrStrUserTypes[0]"
+      mat-button
+      class="btn btn-success"
+      (click)="gotoCustomer()"
+    >Customers</button>
+
+    <button
+      mat-button
+      class="btn btn-warning"
+      (click)="gotoZone()"
+    >Zones</button>
+
+    <button
+      *ngIf="strUserType === arrStrUserTypes[0]"
+      mat-button
+      class="btn btn-info"
+      (click)="gotoSensorList()"
+    >Sensors List</button>
+
+    <button
+      mat-button
+      class="btn btn-secondary"
+      (click)="gotoSensorTypes()"
+    >Sensor Types</button>
+
+    <button
+      *ngIf="(strUserType === arrStrUserTypes[0]) && (strUserRole === arrStrUserRoles[0] || strUserRole === arrStrUserRoles[1])"
+      mat-button
+      class="btn btn-danger"
+      (click)="gotoSensorTypeEdit()"
+    >Sensor Types Edit</button>
+  </mat-card>
+</div>
+  

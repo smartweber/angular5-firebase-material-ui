@@ -1,0 +1,28 @@
+<mat-toolbar class="tool-bar-wrapper" *ngIf="bIsShown">
+	<a class="logo-area" (click)="gotoDashboard()">
+		<img mat-list-avatar [src]="strLogoUrl" class="full-height" alt="logo">	
+	</a>
+
+  <!-- This fills the remaining space of the current row -->
+	<span class="fill-remaining-space"></span>
+	
+  <button class="menu-btn" mat-button color="primary" [matMenuTriggerFor]="menu">
+		{{ strCompanyName }}
+		<mat-icon>keyboard_arrow_down</mat-icon>
+  </button>
+
+	<mat-menu #menu="matMenu" [overlapTrigger]="false">
+		<button mat-menu-item (click)="gotoDashboard()">
+			<mat-icon>dashboard</mat-icon>
+			<div>Dashboard</div>
+		</button>
+		<button mat-menu-item (click)="back()">
+			<mat-icon>keyboard_return</mat-icon>
+			<div>Back</div>
+		</button>
+		<button mat-menu-item (click)="logoout()">
+			<mat-icon>exit_to_app</mat-icon>
+			<div>Log out</div>
+		</button>
+	</mat-menu>
+</mat-toolbar>

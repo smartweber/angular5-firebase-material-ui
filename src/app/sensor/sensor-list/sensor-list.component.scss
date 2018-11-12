@@ -1,0 +1,35 @@
+:host {
+    width: 100%;
+
+    .status {
+        width: 20px;
+        height: 20px;
+        border-radius: 50%;
+
+        &.red {
+            background: red;
+        }
+
+        &.blue {
+            background: blue;
+        }
+
+        &.green {
+            background: green;
+        }
+    }
+    
+    .omni-col-wrap {
+        padding: 0.5em;
+    }
+
+    .static-wrapper {
+        min-width: 1460px;
+
+        .sensor-list-table-container {
+            position: relative;
+            max-height: 500px;
+            overflow: auto;
+        }
+    }
+}

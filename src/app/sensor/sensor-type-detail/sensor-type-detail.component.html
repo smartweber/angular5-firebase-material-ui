@@ -1,0 +1,88 @@
+<div class="omniscent-catalog-view" *ngIf="
+	isPageLoading &&
+	(strUserType === arrStrUserTypes[0]) && 
+	(strUserRole === arrStrUserRoles[0] || strUserRole === arrStrUserRoles[1])">
+	<div class="omniscent-name-list"><!-- display sensor type -->
+		<div class="row no-margin">
+			<h3 class="sub-title">Sensor Types</h3>
+		</div>
+		<mat-list class="omni-list-group">
+			<mat-list-item 
+				class="omni-list-item"
+				*ngFor="let sensor of arrSensorTypes;let i = index;"
+				(click)="selectSensorType(i)"
+				[ngClass]="{'list-active': selectedSensorTypeId === i}"
+			>
+				<div fxLayout fxLayoutAlign="start center" fxFlexFill>
+					<div fxLayout fxLayoutAlign="space-between center" fxFlex="40px">
+						<mat-icon *ngIf="i!==selectedSensorTypeId">add</mat-icon>
+						<mat-icon *ngIf="i===selectedSensorTypeId">remove</mat-icon>
+					</div>
+	
+					<div fxLayout fxLayoutAlign="space-between center" fxFlex>
+						<div class="heading-widget">
+							<div>{{sensor.typeName}}</div>	
+						</div>
+						<div fxLayout fxLayoutAlign="center center">
+							<div class="edit-item" fxLayout fxLayoutAlign="center center">
+								<mat-icon (click)="editSensorType(sensor)">edit</mat-icon>
+							</div>
+							<div class="delete-item" fxLayout fxLayoutAlign="center center">
+								<mat-icon (click)="onDeleteSensorType(sensor.key)">delete_outline</mat-icon>
+							</div>
+						</div>
+					</div>
+				</div>
+			</mat-list-item>
+		</mat-list>
+
+		<div class="row no-margin" *ngIf="isCreateSensorType || isEditSensorType">
+			<div class="action-button-area col-sm-12">
+				<form [formGroup]="stForm" (ngSubmit)="submitSensorType()">
+					<div class="form-group">
+						<mat-form-field class="full-width">
+							<input type="text" matInput placeholder="Sensor Type Name" formControlName="name" name="name" required>
+						</mat-form-field>
+					</div>
+
+					<div>
+						<button mat-raised-button class="btn btn-success">Submit</button>
+						<a mat-raised-button class="btn btn-default" (click)="cancelSensorType()">Cancel</a>
+					</div>
+				</form>
+			</div>
+		</div>
+
+		<div class="row no-margin">
+			<div class="action-button-area col-sm-12">
+				<button color mat-mini-fab class="pull-right btn-icon" (click)="showSensorTypeForm()">
+					<img src="assets/images/add_color.png" />
+				</button>
+			</div>
+		</div>
+	</div><!-- display sensor type -->
+
+	<div class="omniscent-detail-view m-3" *ngIf="selectedSensorTypeKey && selectedSensorTypeId !== -1"><!-- sensor detail area -->
+		<div class="mb-2" fxLayout="row" fxLayoutAlign="end center" *ngIf="selectedSensorTypeId > -1">
+			<button mat-raised-button class="btn" [ngClass]="{'btn-primary': type === 0 }" (click)="goTargetNavigation(0)">Status</button>
+			<button mat-raised-button class="btn ml-2" [ngClass]="{'btn-primary': type === 1 }" (click)="goTargetNavigation(1)">VOC Analytics</button>
+			<button mat-raised-button class="btn ml-2" [ngClass]="{'btn-primary': type === 2 }" (click)="goTargetNavigation(2)">Debug</button>
+		</div>
+
+		<div class="row no-margin sensor-type-category-wrap">
+			<app-sensor-type-category
+			[sensorType]="focusCategory"
+			[categoryType]="type"
+			[isCreatable]="(strUserType === arrStrUserTypes[0]) && (strUserRole === arrStrUserRoles[0] || strUserRole === arrStrUserRoles[1])"
+			[sensorTypeName]="sensorTypeLinkName"
+			[selectedSensorTypeKey]="selectedSensorTypeKey"
+			(updateTableTypeEmit)="updateTableTypeEmit($event)"
+			(createRowParamEmit)="createRowParamEmit($event)"
+			(createHeaderParamEmit)="createHeaderParamEmit($event)"
+			(updateRowParamEmit)="updateRowParamEmit($event)"
+			(updateHeaderParamEmit)="updateHeaderParamEmit($event)"
+			(gotoSensorTypeInfoEmit)="gotoSensorTypeInfoEmit()"
+			></app-sensor-type-category>
+		</div>
+	</div><!-- sensor detail area -->
+</div>

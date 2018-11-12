@@ -1,0 +1,17 @@
+cron:
+- description: Daily night sensors test
+  url: /publish/dailyTestSensors
+  schedule: every 1 hours from 18:00 to 6:00
+  timezone: America/Los_Angeles
+- description: Sensors check in real time
+  url: /publish/checkSensorsStatusInRealtime
+  schedule: every 1 minutes
+  timezone: America/Los_Angeles
+- description: Sensors daily night result check in real time
+  url: /publish/runResultInRealtime
+  schedule: every 10 minutes from 18:00 to 6:00
+  timezone: America/Los_Angeles
+- description: create system parameter report file every day at 23:00
+  url: /publish/systemParameterReport
+  schedule: every day 23:00
+  timezone: America/Los_Angeles

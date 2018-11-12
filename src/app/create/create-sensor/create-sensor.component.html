@@ -1,0 +1,107 @@
+<div class="container-fluid" *ngIf="isGettingData">
+	<div class="row">
+		<div class="offset-sm-2 col-sm-8">
+			<mat-progress-bar mode="indeterminate" *ngIf="isCreateSensor"></mat-progress-bar>
+			<mat-card>
+				<mat-card-title>
+					<div fxLayout fxLayoutAlign="start center">
+						<button mat-icon-button color="primary" class="mr-1" (click)="onBack()">
+							<mat-icon>keyboard_return</mat-icon>
+						</button>
+						Create New Sensor
+					</div>
+				</mat-card-title>
+
+				<mat-card-content>
+					<form [formGroup]="sensorForm" class="container-fluid" (ngSubmit)="onSave()">
+						<div class="row">
+							<div class="form-group col-sm-6">
+								<mat-form-field class="full-width">
+									<input matInput placeholder="Name *" type="text" formControlName="name">
+								</mat-form-field>
+
+								<div *ngIf="formErrors.name" class="alert alert-danger">
+									{{formErrors.name}}
+								</div>
+							</div>
+
+							<div class="form-group col-sm-6">
+								<mat-form-field class="full-width">
+									<textarea matInput placeholder="Description" formControlName="description" rows="1"></textarea>
+								</mat-form-field>
+							</div>
+						</div>
+
+						<div class="row">
+							<div class="form-group col-sm-6">
+								<mat-form-field class="full-width">
+									<mat-select placeholder="Sensor Type *" formControlName="type" name="type">
+										<mat-option *ngFor="let type of sensorTypes" [value]="type.key">
+											{{ type.name }}
+										</mat-option>
+									</mat-select>
+								</mat-form-field>
+							</div>
+			
+							<div class="form-group col-sm-6">
+								<mat-form-field class="full-width">
+									<input matInput type="text" placeholder="Serial Number *" formControlName="serialNumber" name="serialNumber">
+								</mat-form-field>
+							</div>
+						</div>
+						
+						<div class="row">
+							<div class="form-group col-sm-12">
+								<fieldset>
+									<legend>Location *</legend>
+
+									<mat-radio-group class="inline-radio-area" name="situation" formControlName="situation">
+										<mat-radio-button color="primary" [value]="1" *ngIf="geocoder">
+											With address
+										</mat-radio-button>
+
+										<mat-radio-button color="primary" [value]="0">
+											With lattitude and longitude
+										</mat-radio-button>
+									</mat-radio-group>
+								</fieldset>
+							</div>
+						</div>
+
+						<div class="row" *ngIf="sensorForm.value.situation === 1">
+							<div class="form-group col-sm-12">
+								<mat-form-field class="full-width">
+									<input matInput type="text" placeholder="Address *" formControlName="address" name="address">
+								</mat-form-field>
+							</div>
+						</div>
+
+						<div class="row" *ngIf="sensorForm.value.situation === 0">
+							<div class="form-group col-sm-6">
+								<mat-form-field class="full-width">
+									<input matInput type="number" placeholder="Lattitude *" formControlName="lat" name="lat">
+								</mat-form-field>
+							</div>
+			
+							<div class="form-group col-sm-6">
+								<mat-form-field class="full-width">
+									<input matInput type="number" placeholder="Longitude *" formControlName="lng" name="lng">
+								</mat-form-field>
+							</div>
+						</div>
+
+						<div class="row" *ngIf="!isCreateSensor">
+							<div class="form-group offset-sm-2 col-sm-8">
+								<div fxLayout="row" fxLayoutAlign="center center">
+									<button mat-raised-button class="mr-2" color="primary" [disabled]="sensorForm.invalid">Create Sensor</button>
+									<a mat-raised-button class="btn btn-default" (click)="sensorForm.reset()">Reset</a>
+								</div>
+							</div>
+						</div>
+						
+					</form>
+				</mat-card-content>
+			</mat-card>
+		</div>
+	</div>
+</div>

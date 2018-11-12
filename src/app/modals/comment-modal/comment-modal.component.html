@@ -1,0 +1,13 @@
+<div class="comment-modal-area">
+  <h2 mat-dialog-title>Comment Modal</h2>
+
+  <mat-dialog-content>
+    <textarea class="full-width" [(ngModel)]="strComment" rows="6" required autofocus  *ngIf="bIsEdit"></textarea>
+    <textarea class="full-width only" [(ngModel)]="strComment" rows="6" readonly  *ngIf="!bIsEdit"></textarea>
+  </mat-dialog-content>
+
+  <mat-dialog-actions align="end">
+    <button mat-stroked-button color="primary" *ngIf="bIsEdit" (click)="done()">Done</button>
+    <button mat-stroked-button color="warn" *ngIf="!bIsEdit" (click)="close()">Close</button>
+  </mat-dialog-actions>
+</div>

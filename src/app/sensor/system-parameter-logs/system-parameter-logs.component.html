@@ -1,0 +1,72 @@
+<div class="system-parameter-logs-container">
+  <mat-table #table class="omni-table" [dataSource]="dataSource">
+    <!-- Sequence Column -->
+    <ng-container matColumnDef="sequence">
+      <mat-header-cell *matHeaderCellDef fxFlex="64px">
+        <div class="omni-table-header">
+          No.
+        </div>
+      </mat-header-cell>
+      <mat-cell *matCellDef="let element" fxFlex="64px">
+        <div class="omni-col-wrap">
+          {{ element?.sequence + 1 }}
+        </div>
+      </mat-cell>
+    </ng-container>
+    <!-- Sequence Column -->
+
+    <!-- Date Column -->
+    <ng-container matColumnDef="time">
+      <mat-header-cell *matHeaderCellDef>
+        <div class="omni-table-header">
+          Date
+        </div>
+      </mat-header-cell>
+      <mat-cell *matCellDef="let element">
+        <div class="omni-col-wrap">
+            {{ element?.time }}
+        </div>
+      </mat-cell>
+    </ng-container>
+    <!-- Date Column -->
+
+    <!-- Action Column -->
+    <ng-container matColumnDef="action">
+      <mat-header-cell *matHeaderCellDef>
+        <div class="omni-table-header">
+          Action
+        </div>
+      </mat-header-cell>
+      <mat-cell *matCellDef="let element">
+        <div fxLayout fxLayoutAlign="center center">
+          <div class="pointer mx-3"
+            matTooltip="Delete"
+          >
+            <mat-icon color="warn" (click)="onDelete(element)">delete_outline</mat-icon>
+          </div>
+
+          <mat-spinner
+            *ngIf="isDownloading && selectedItemKey === element['key']; else downloadEle"
+            class="small-spinner" color="primary"></mat-spinner>
+          
+          <ng-template #downloadEle>
+            <div class="pointer edit-item"
+              matTooltip="Download"
+            >
+              <mat-icon (click)="onDownload(element)">cloud_download</mat-icon>
+            </div>
+          </ng-template>
+        </div>
+      </mat-cell>
+    </ng-container>
+    <!-- Action Column -->
+
+    <mat-header-row class="no-padding" *matHeaderRowDef="columns"></mat-header-row>
+		<mat-row class="no-padding" *matRowDef="let row; columns: columns;"></mat-row>
+  </mat-table>
+
+  <mat-paginator #paginator
+    [pageSize]="5"
+    [pageSizeOptions]="[5, 20, 50]">
+  </mat-paginator>
+</div>

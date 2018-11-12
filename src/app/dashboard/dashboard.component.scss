@@ -1,0 +1,33 @@
+@import 'src/theme.scss';
+
+:host {
+    width: 100%;
+
+    .dashboard-area {
+        height: 100%;
+    
+        .row {
+            margin: 2em 0 !important;
+        }
+    
+        .wrapper {
+            display: flex;
+            flex-flow: column;
+            justify-content: space-around;
+            align-items: center;
+            height: 100%;
+            border: 5px double mat-color($app-primary);
+            background-color: mat-color($app-primary, 50, 0.4);
+        }
+    
+        button {
+            width: 250px;
+            height: 50px;
+            min-height: 50px;
+            font-size: 20px;
+            border-radius: 0;
+            color: #000;
+        }
+    }
+}
+    

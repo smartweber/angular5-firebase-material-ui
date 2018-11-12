@@ -1,0 +1,118 @@
+{
+
+    "userSingleSession": false,
+
+    "environmentImage": "",
+    "clientConfig": "",
+
+    "Service": {
+        "protocol": "http://",
+        "port": 3036,
+        "loadBalancerProtocol": "https://",
+        "loadBalancerPort": 443,
+        "redirectHttps":false,
+        "redirectListenerPort":3036,
+        "redirectTargetPort":"",
+        "logEveryRequest":true,
+        "host": "0.0.0.0",
+        "hostName": "omniportal-dev.back-end.io",
+        "loadBalancerHostName": "dev.omniscent.com",
+        "appName": "omniportal-dev",
+        "emailFrom": "Omniportal E-Mail <omniportal-dev-log@back-end.io>",
+        "emailToOperator": "support+omniportal@smartaz.com"
+
+    },
+
+    "MQTT": {
+        "enabled": false,
+        "mqttBrokerUrl": "",
+        "mqttClientId": ""
+    },
+
+    "Mailer": {
+        "host": "email-smtp.us-west-2.amazonaws.com",
+        "port": 465,
+        "secure": true,
+        "auth": {
+            "user": "",
+            "pass": ""
+        }
+    },
+
+    "Slack": {
+        "enabled": true,
+        "webHookUri": "https://hooks.slack.com/services/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",
+        "channel": "#network-status",
+        "username": "Omniportal (DEV)"
+    },
+
+    "Logger": {
+        "pm2": true,
+        "appenders": {
+            "console": {
+                "type": "console"
+            },
+            "out": {
+                "type": "stdout"
+            },
+            "app": {
+                "type": "dateFile",
+                "filename": "./server/logs/server.log",
+                "pattern": "-yyyy-MM-dd",
+                "keepFileExt": true,
+                "daysToKeep": 7,
+                "compress": true
+            },
+            "mail": {
+                "type": "smtp",
+                "recipients": "support+omniportal@smartaz.com",
+                "sender": "omniportal-dev-log@back-end.io",
+                "sendInterval": 600,
+                "transport": {
+                    "plugin": "smtp",
+                    "options": {
+                        "host": "email-smtp.us-west-2.amazonaws.com",
+                        "secure": true,
+                        "port": 465,
+                        "auth": {
+                            "user": "",
+                            "pass": ""
+                        }
+                    }
+                }
+
+            },
+            "mail-warnings": {
+                "type": "logLevelFilter",
+                "appender": "mail",
+                "level": "warn"
+            }
+        },
+        "categories": {
+            "default": {
+                "appenders": ["out", "app", "mail-warnings"],
+                "level": "info"
+            },
+            "server": {
+                "appenders": ["out", "app", "mail-warnings"],
+                "level": "trace"
+            },
+            "helper": {
+                "appenders": ["out", "app", "mail-warnings"],
+                "level": "warn"
+            },
+            "notify-slack": {
+                "appenders": ["out", "app", "mail-warnings"],
+                "level": "info"
+            },
+            "notify-mailer": {
+                "appenders": ["out", "app", "mail-warnings"],
+                "level": "info"
+            }
+        }
+
+    }
+
+
+
+}

@@ -1,0 +1,1808 @@
+<div class="sensor-detail-wrapper px-2" *ngIf="isTypeLoading" #detailWrapper>
+
+	<div fxLayout="row wrap" fxLayoutAlign="start center"><!--action wrapper-->
+		<div class="mb-2 mr-2">
+			<button
+				mat-raised-button
+				class="btn"
+				[ngClass]="{'btn-primary': nActionNumber === 0, 'btn-default': nActionNumber !== 0}"
+				(click)="changeStatus(0)"
+			>Status</button>
+		</div>
+
+		<div class="mb-2 mr-2 relative">
+			<button
+				mat-raised-button
+				class="btn"
+				[ngClass]="{'btn-primary': nActionNumber === 1, 'btn-default': nActionNumber !== 1}"
+				(click)="changeStatus(1)"
+			>Analytical Results</button>
+			<div class="new-notification" *ngIf="arrObjNewAnalyticalData.length > 0">
+				New <span class="badge">{{ arrObjNewAnalyticalData.length }}</span>
+			</div>
+		</div>
+
+		<div class="mb-2 mr-2 relative">
+			<button 
+				mat-raised-button
+				class="btn"
+				[ngClass]="{'btn-primary': nActionNumber === 3, 'btn-default': nActionNumber !== 3}"
+				(click)="changeStatus(3)"
+			>Processed Data</button>
+			<div class="new-notification" *ngIf="arrObjNewProcessedData.length > 0">
+				New <span class="badge">{{arrObjNewProcessedData.length}}</span>
+			</div>
+		</div>
+
+		<div class="mb-2 mr-2 relative">
+			<button
+				mat-raised-button
+				class="btn"
+				[ngClass]="{'btn-primary': nActionNumber === 2, 'btn-default': nActionNumber !== 2}"
+				(click)="changeStatus(2)"
+			>Raw Data</button>
+			<div class="new-notification" *ngIf="arrObjNewRawData.length > 0">
+				New <span class="badge">{{arrObjNewRawData.length}}</span>
+			</div>
+		</div>
+
+		<div class="mb-2" *ngIf="strUserType === arrStrUserTypes[0]">
+			<button
+				mat-raised-button
+				class="btn"
+				[ngClass]="{'btn-primary': nActionNumber === 4, 'btn-default': nActionNumber !== 4}"
+				(click)="changeStatus(4)"
+			>Debug</button>
+		</div>
+	</div><!--action wrapper-->
+
+	<mat-card *ngIf="isEditStatus && nActionNumber === 0">
+		<mat-card-title>Control</mat-card-title>
+		<mat-card-subtitle>
+			<div fxLayout="row wrap" fxLayoutAlign="start center">
+				<div class="mr-2">Status:</div>
+				<div [ngClass]="{'on': isOnlineDevice, 'off': !isOnlineDevice, 'status-circle': true}"></div>
+			</div>
+		</mat-card-subtitle>
+		<mat-card-content class="content">
+			<div class="action row" *ngIf="!isGetConfig">
+				<div class="col-sm-12 flex-wrapper">
+					<mat-spinner></mat-spinner>
+				</div>
+			</div>
+
+			<div class="action" fxLayout="row wrap" fxLayoutAlign="space-between center" *ngIf="isGetConfig">
+				<div fxLayout="row wrap">
+					<div class="mb-2 mr-3">
+						<button
+							class="btn btn-icon btn-success btn-circle"
+							(click)="controlSensorDevice(2)"
+							[disabled]="nActionStatus === 2 || !isOnlineDevice || nActionStatus === 1 || configData && !configData['Current_Type']"
+						>
+							<mat-icon>play_arrow</mat-icon>
+						</button>
+					</div>
+					<div class="mb-2">
+						<button
+							class="btn btn-icon btn-danger btn-circle"
+							(click)="controlSensorDevice(3)"
+							[disabled]="nActionStatus === 3 || !isOnlineDevice || nActionStatus === 1 || nActionStatus === 3 || configData && !configData['Current_Type']"
+						>
+							<mat-icon>stop</mat-icon>
+						</button>
+					</div>
+				</div>
+
+				<div fxLayout="column wrap" class="sensor-control-container">
+					<div class="mb-2">
+						<button
+							class="btn btn-info"
+							(click)="controlSensorDevice(1)"
+							[disabled]="nActionStatus === 2 || !isOnlineDevice"
+						>
+							<mat-icon>settings</mat-icon>
+							<div>Configure</div>
+						</button>
+					</div>
+					<div class="mb-2">
+						<button
+							class="btn btn-info"
+							(click)="controlSensorDevice(-1)"
+							[disabled]="!configData || configData && !configData['Current_Type']"
+						>
+							<mat-icon >personal_video</mat-icon>
+							<div>
+								<div>Configure</div>
+								<div>View</div>
+							</div>
+						</button>
+					</div>
+					<div class="mb-2">
+						<button
+							class="btn btn-success"
+							(click)="controlSensorDevice(4)"
+							[disabled]="nActionStatus === 4 || !isOnlineDevice || nActionStatus === 1 || configData && !configData['Current_Type']"
+						>
+							<mat-icon>refresh</mat-icon>
+							<div>Reboot</div>
+						</button>
+					</div>
+					<div class="mb-2" *ngIf="strUserType === arrStrUserTypes[0]">
+						<button
+							class="btn btn-danger"
+							(click)="controlSensorDevice(6)"
+							[disabled]="nActionStatus === 6 || !isOnlineDevice || nActionStatus === 1 || configData && !configData['Current_Type']"
+						>
+							<mat-icon>power_settings_new</mat-icon>
+							<div>Shut Down</div>
+						</button>
+					</div>
+				</div>
+			</div>
+  		</mat-card-content>
+	</mat-card>
+	  
+	<mat-card *ngIf="nActionNumber === 4">
+		<mat-card-title>Control</mat-card-title>
+
+		<mat-card-content>
+			<div class="row">
+				<div class="col-sm-6">
+					<button mat-raised-button class="btn btn-primary full-width" (click)="debugTask()" [disabled]="nActionStatus === 2 || !isOnlineDevice">DEBUG</button>
+				</div>
+			</div>
+		</mat-card-content>
+	</mat-card>
+
+	<mat-card *ngIf="nActionNumber === 4">
+		<mat-card-title>Debug Files</mat-card-title>
+
+		<mat-card-content class="overflow-x content">
+			<div class="flex-wrapper" *ngIf="!bIsDebugData">
+				<mat-spinner></mat-spinner>
+			</div>
+
+  			<div class="static-wrapper" *ngIf="bIsDebugData">
+				<mat-table class="omni-table" #debugTable [dataSource]="debugDataSource">
+					<!-- Position Column -->
+					<ng-container matColumnDef="position">
+						<mat-header-cell *matHeaderCellDef style="flex: 1">
+							<div class="omni-table-header">
+								No.
+							</div>
+						</mat-header-cell>
+						<mat-cell *matCellDef="let element" style="flex: 1">
+							<div class="omni-col-wrap">
+								{{ element['position'] }}
+							</div>
+						</mat-cell>
+					</ng-container>
+		
+					<!-- Name Column -->
+					<ng-container matColumnDef="name">
+						<mat-header-cell *matHeaderCellDef style="flex: 2">
+							<div class="omni-table-header">
+								Name
+							</div>
+						</mat-header-cell>
+						<mat-cell *matCellDef="let element" style="flex: 2">
+							<div class="omni-col-wrap">
+								<div class="omni-col-item" [matTooltip]="element['name']">
+									<div>
+										{{ element['name'] }}
+									</div>
+
+									<div class="pointer ml-2 edit-item"
+										*ngIf="element['url']"
+										fxLayout fxLayoutAlign="center center"
+									>
+										<mat-icon (click)="onDownloadFile(element['url'], element['name'])">cloud_download</mat-icon>
+									</div>
+								</div>
+							</div>
+						</mat-cell>
+					</ng-container>
+
+					<!-- Upload Time Column -->
+					<ng-container matColumnDef="date">
+						<mat-header-cell *matHeaderCellDef style="flex: 1">
+							<div class="omni-table-header">
+								Upload Time
+							</div>
+						</mat-header-cell>
+						<mat-cell *matCellDef="let element" style="flex: 1">
+							<div class="omni-col-wrap">
+								<div class="omni-col-item">
+									{{ element['date'] }}
+								</div>
+							</div>
+						</mat-cell>
+					</ng-container>
+
+					<!-- Size Column -->
+					<ng-container matColumnDef="size">
+						<mat-header-cell *matHeaderCellDef style="flex: 1">
+							<div class="omni-table-header">
+								Size
+							</div>
+						</mat-header-cell>
+						<mat-cell *matCellDef="let element" style="flex: 1">
+							<div class="omni-col-wrap">
+								<div class="omni-col-item">
+									{{ element['size'] }}
+								</div>
+							</div>
+						</mat-cell>
+					</ng-container>
+		
+					<mat-header-row *matHeaderRowDef="arrStrDebugDisplayedColumns"></mat-header-row>
+					<mat-row *matRowDef="let row; columns: arrStrDebugDisplayedColumns;"></mat-row>
+				</mat-table>
+			</div>
+		</mat-card-content>
+	</mat-card>
+
+  	<mat-card>
+  		<mat-card-title>Progress</mat-card-title>
+  		<mat-card-content *ngIf="bIsProgressBar" class="overflow-x content">
+  			<div class="static-wrapper text-center" *ngIf="!isOnlineDevice">
+  				<div class="alert alert-danger">Network Disconnected</div>
+  			</div>
+  			<div class="static-wrapper" *ngIf="isOnlineDevice">
+  				<div class="progress-description-area" *ngIf="bIsProgressDes && !bIsDoneProgress">
+	  				<div>
+	  					Current run: Run {{ runProgress['runNumber'] }}, {{ runProgress['runProgressPercent'] }}% completed, {{ runProgress['runRemainTime'] }}s / {{ runProgress['runTotalTime'] }}s remaining for this run
+	  				</div>
+
+	  				<div>
+	  					Current step: Step {{ runProgress['stepNumber'] }}, {{ runProgress['stepProgressPercent'] }}% completed, {{ runProgress['stepRemainTime'] }}s / {{ runProgress['stepTotalTime'] }}s remaining for this step
+	  				</div>
+	  			</div>
+
+	  			<div class="run-progress-area" *ngIf="isEditStatus">
+	  				<div class="label-area text-center">
+	  					<div class="label-item flex1" *ngFor="let runItem of arrRunProgress; let i = index;">
+	  						Run{{ i + 1 }}
+	  					</div>
+	  				</div>
+
+	  				<div class="progress-bar-area">
+						<div class="progress-item" *ngFor="let runItem of arrRunProgress"
+						[ngClass]="{
+							'active': (runItem === 2) || bIsDoneProgress,
+							'progress': (runItem === 1) && !bIsDoneProgress,
+							'progress-done-item': bIsDoneProgress
+						}">
+	  						<div class="main-frame">
+	  							<div class="circle-item"></div>
+	  							<div class="bar-item"></div>
+	  						</div>
+	  						<div class="belt-frame" [style.width]="runProgress['runProgressPercent'] + '%'" ></div>
+						</div>
+						
+						<div class="progress-item end-progress-item" [ngClass]="{'active': bIsDoneProgress}">
+							<div class="main-frame">
+								<div class="circle-item"></div>
+							</div>
+						</div>
+	  				</div>
+	  			</div>
+
+	  			<div class="step-progress-area" *ngIf="isEditStatus">
+	  				<div class="step-label-area label-area">
+	  					<div class="label-item flex1" *ngFor="let runItem of arrStepProgress; let i = index;">
+	  						Step{{ runItem['index'] }}:
+	  					</div>
+	  				</div>
+
+	  				<div class="category-label-area label-area">
+	  					<div class="label-item flex1" *ngFor="let runItem of arrStepProgress">
+	  						{{ runItem['categoryName'] }}
+	  					</div>
+	  				</div>
+
+	  				<div class="start-label-area label-area">
+	  					<div class="label-item flex1">Start</div>
+	  					<div class="label-item flex1 text-right">End</div>
+					</div>
+					  
+					<div class="progress-bar-area">
+						<div class="progress-item" *ngFor="let runItem of arrStepProgress"
+						[ngClass]="{
+						'active': (runItem['status'] === 2) || bIsDoneProgress,
+						'progress': (runItem['status'] === 1) && !bIsDoneProgress,
+						'progress-done-item': bIsDoneProgress
+						}">
+							<div class="main-frame">
+								<div class="circle-item"></div>
+								<div class="bar-item"></div>
+							</div>
+							<div class="belt-frame" [style.width]="runProgress['stepProgressPercent'] + '%'" ></div>
+						</div>
+
+						<div class="progress-item end-progress-item"
+							[ngClass]="{'active': bIsDoneProgress}">
+							<div class="main-frame">
+								<div class="circle-item"></div>
+							</div>
+						</div>
+					</div>
+	  			</div>
+  			</div>
+  		</mat-card-content>
+  	</mat-card>
+
+  	<mat-card *ngIf="isEditStatus && nActionNumber === 2 && 
+  	( ( strUserType === arrStrUserTypes[0] && (strUserRole === arrStrUserRoles[0] || strUserRole === arrStrUserRoles[1] || strUserRole === arrStrUserRoles[4]) ) || 
+  	  ( strUserType === arrStrUserTypes[1] && (strUserRole === arrStrUserRoles[0] || strUserRole === arrStrUserRoles[2] ))
+  	)">
+  		<mat-card-title>
+  			<div class="data-title-wrapper">
+  				<div class="main-title inline">Raw Data</div>
+	  			<div class="status-title inline" *ngIf="arrObjRawFiles.length > 0 && strRawStartTime === arrObjRawFiles[0]['startTimestamp']">Latest Data</div>
+	  			<div class="status-title blue-text inline" *ngIf="arrObjRawFiles.length > 0 && strRawStartTime !== arrObjRawFiles[0]['startTimestamp']">Earlier Data</div>
+  			</div>
+		</mat-card-title>
+
+		<mat-card-subtitle>
+			Measurement Start Time: {{ strRawStartTime ? strRawStartTime : 'N/A' }}
+		</mat-card-subtitle>
+
+		<mat-card-subtitle>Data Upload Time: {{ strLCDChartDate ? strLCDChartDate : 'N/A' }}</mat-card-subtitle>
+		<mat-card-content class="overflow-x content">
+			<div class="static-wrapper" #chartBodyElement>
+				<div *ngIf="bIsLoadRawData; else alertRawDataEle">
+					<div class="alert alert-info full-width text-center" *ngIf="!rawData || (rawData && rawData.length === 0); else rawDataChartEle">
+						Unknown file format or empty file.
+					</div>
+
+					<ng-template #rawDataChartEle>
+							<mat-tab-group (selectedIndexChange)="onSelectTab($event)" [selectedIndex]="nSelectedChartInd">
+								<mat-tab label="Capacitance"><!-- CDC start -->
+									<div class="chart-wrapper" #cdcTabElement>
+										<app-plotly *ngIf="isCdcCalled"
+										[data]="plotlyCDCData"
+										[layout]="plotlyCDCLayout"
+										[options]="{}"
+										[style]="plotlyCDCStyle"
+										></app-plotly>
+									</div>
+								</mat-tab><!-- CDC start -->
+		
+								<mat-tab label="Temperature"><!-- ADC start -->
+									<div class="chart-wrapper" #adcTabElement>
+										<app-plotly *ngIf="isAdcCalled"
+										[data]="plotlyADCData"
+										[layout]="plotlyADCLayout"
+										[options]="{}"
+										[style]="plotlyADCStyle"
+										></app-plotly>
+									</div>
+								</mat-tab><!-- ADC end -->
+		
+								<mat-tab label="Flow Rate"><!-- Flow start -->
+									<div class="chart-wrapper" #flowTabElement>
+										<app-plotly *ngIf="isFlowCalled"
+										[data]="plotlyFlowData"
+										[layout]="plotlyFlowLayout"
+										[options]="{}"
+										[style]="plotlyFlowStyle"
+										></app-plotly>
+									</div>
+								</mat-tab><!-- Flow start -->
+							</mat-tab-group>
+					</ng-template>
+				</div>
+
+				<ng-template #alertRawDataEle>
+					<div class="load-area">
+						<mat-spinner></mat-spinner>	
+					</div>
+
+					<div class="alert alert-info full-width text-center" *ngIf="bIsGetAllRawData">
+						Parsing raw data file...
+					</div>
+				</ng-template>
+			</div>
+		</mat-card-content>
+	</mat-card>
+
+  	<mat-card *ngIf="isEditStatus && nActionNumber === 2 && 
+  	( ( strUserType === arrStrUserTypes[0] && (strUserRole === arrStrUserRoles[0] || strUserRole === arrStrUserRoles[1] || strUserRole === arrStrUserRoles[2] || strUserRole === arrStrUserRoles[4]) ) || 
+  	  ( strUserType === arrStrUserTypes[1] && (strUserRole === arrStrUserRoles[0] || strUserRole === arrStrUserRoles[2] ))
+  	)">
+  		<mat-card-title>Raw Data Files</mat-card-title>
+  		<mat-card-content class="overflow-x content">
+  			<div class="load-area" *ngIf="!bIsGetAllRawData">
+					<mat-spinner></mat-spinner>
+				</div>
+
+  			<div class="static-wrapper" *ngIf="bIsGetAllRawData">
+					<mat-table #rawTable class="omni-table" [dataSource]="rawDataSource">
+						<!-- Position Column -->
+						<ng-container matColumnDef="position">
+							<mat-header-cell *matHeaderCellDef fxFlex="64px">
+								<div class="omni-table-header">
+									No.
+								</div>
+							</mat-header-cell>
+							<mat-cell *matCellDef="let element" fxFlex="64px">
+								<div class="omni-col-wrap">
+									{{ element['position'] + 1 }}
+								</div>
+							</mat-cell>
+						</ng-container>
+					
+						<!-- Measurement Start Time Column -->
+						<ng-container matColumnDef="startTimestamp">
+							<mat-header-cell *matHeaderCellDef fxFlex="150px">
+									<div class="omni-table-header">
+										Measurement Start Time
+									</div>
+							</mat-header-cell>
+							<mat-cell *matCellDef="let element" fxFlex="150px">
+								<div class="omni-col-wrap">
+									<div class="omni-col-item">
+										{{ element['startTimestamp'] }}
+									</div>
+								</div>
+							</mat-cell>
+						</ng-container>
+		
+						<!-- Step Category Column -->
+						<ng-container matColumnDef="type">
+							<mat-header-cell *matHeaderCellDef fxFlex="150px">
+								<div class="omni-table-header">
+									Step Category
+								</div>
+							</mat-header-cell>
+							<mat-cell *matCellDef="let element" fxFlex="150px">
+								<div class="omni-col-wrap">
+									<div class="omni-col-item" *ngFor="let data of element['data']" [ngClass]="{'white-bg': strSelectedRawKey !== data['key'] && strSelectedRawCycle === data['cycleIndex']}">
+										{{ data['type'] }}
+									</div>
+								</div>
+							</mat-cell>
+						</ng-container>
+			
+						<!-- Name Column -->
+						<ng-container matColumnDef="name">
+							<mat-header-cell *matHeaderCellDef fxFlex="250px">
+								<div class="omni-table-header">
+									Name
+								</div>
+							</mat-header-cell>
+							<mat-cell *matCellDef="let element" fxFlex="250px">
+								<div class="omni-col-wrap">
+									<div class="omni-col-item" *ngFor="let data of element['data']" [matTooltip]="data['name']" [ngClass]="{'white-bg': strSelectedRawKey !== data['key'] && strSelectedRawCycle === data['cycleIndex']}">
+										<div class="ellipsis">
+											{{ data['name'] }}
+										</div>
+									</div>
+								</div>
+							</mat-cell>
+						</ng-container>
+
+						<!-- Upload Time Column -->
+						<ng-container matColumnDef="date">
+							<mat-header-cell *matHeaderCellDef fxFlex="150px">
+								<div class="omni-table-header">
+									Upload Time
+								</div>
+							</mat-header-cell>
+							<mat-cell *matCellDef="let element" fxFlex="150px">
+								<div class="omni-col-wrap">
+									<div class="omni-col-item" *ngFor="let data of element['data']" [ngClass]="{'white-bg': strSelectedRawKey !== data['key'] && strSelectedRawCycle === data['cycleIndex']}">
+										{{ data['date'] }}
+									</div>
+								</div>
+							</mat-cell>
+						</ng-container>
+
+						<!-- Size Column -->
+						<ng-container matColumnDef="size">
+							<mat-header-cell *matHeaderCellDef fxFlex="100px">
+								<div class="omni-table-header">
+									Size
+								</div>
+							</mat-header-cell>
+							<mat-cell *matCellDef="let element" fxFlex="100px">
+								<div class="omni-col-wrap">
+									<div class="omni-col-item" *ngFor="let data of element['data']" [ngClass]="{'white-bg': strSelectedRawKey !== data['key'] && strSelectedRawCycle === data['cycleIndex']}">
+										{{ data['size'] }}
+									</div>
+								</div>
+							</mat-cell>
+						</ng-container>
+					
+						<!-- Actions Column -->
+						<ng-container matColumnDef="actions">
+							<mat-header-cell *matHeaderCellDef fxFlex="150px">
+								<div class="omni-table-header">
+									Actions
+								</div>
+							</mat-header-cell>
+							<mat-cell *matCellDef="let element" fxFlex="150px">
+								<div class="omni-col-wrap">
+									<div class="omni-col-item" *ngFor="let data of element['data']" [ngClass]="{'white-bg': strSelectedRawKey !== data['key'] && strSelectedRawCycle === data['cycleIndex']}">
+										<div class="pointer"
+											*ngIf="bIsLoadRawData || (!bIsLoadRawData && strSelectedRawKey !== data['key']); else waitLoadButton"
+											matTooltip="Load"
+										>
+											<mat-icon color="primary" (click)="onLoadOneCycleData(data, 2)">play_arrow</mat-icon>
+										</div>
+										<ng-template #waitLoadButton>
+											<mat-spinner class="small-spinner" color="primary"></mat-spinner>
+										</ng-template>
+
+										<div class="pointer mx-3"
+											matTooltip="Delete"
+										>
+											<mat-icon color="warn" (click)="onDeleteRawData(data)">delete_outline</mat-icon>
+										</div>
+
+										<div class="pointer edit-item"
+											matTooltip="Download"
+										>
+											<mat-icon (click)="onDownloadFile(data['url'], data['name'])">cloud_download</mat-icon>
+										</div>
+									</div>
+								</div>
+							</mat-cell>
+						</ng-container>
+
+						<!-- Comment Column -->
+						<ng-container matColumnDef="comment">
+							<mat-header-cell *matHeaderCellDef fxFlex>
+								<div class="omni-table-header">
+									Comment
+								</div>
+							</mat-header-cell>
+							<mat-cell *matCellDef="let element" fxFlex>
+								<div class="omni-col-wrap no-border">
+									<div class="omni-col-item relative" *ngFor="let data of element['data']" [ngClass]="{'white-bg': strSelectedRawKey !== data['key'] && strSelectedRawCycle === data['cycleIndex']}">
+										<app-comment
+										[strComment]="data['comment']"
+										[key]="data['key']"
+										(updateComment)="onUpdateRawComment($event)"
+										></app-comment>
+									</div>
+								</div>
+							</mat-cell>
+						</ng-container>
+			
+						<mat-header-row class="no-padding" *matHeaderRowDef="arrStrDisplayedColumns"></mat-header-row>
+						<mat-row class="no-padding" *matRowDef="let row; columns: arrStrDisplayedColumns;" [ngClass]="{'light-green-bg': strSelectedRawCycle === row.cycleIndex}"></mat-row>
+					</mat-table>
+		
+					<mat-paginator #rawPaginator
+						[pageSize]="5"
+						[pageSizeOptions]="[5, 20, 50]">
+					</mat-paginator>
+				</div>
+  		</mat-card-content>
+  	</mat-card>
+
+  	<mat-card *ngIf="isEditStatus && nActionNumber === 3 && 
+  	( ( strUserType === arrStrUserTypes[0] && (strUserRole === arrStrUserRoles[0] || strUserRole === arrStrUserRoles[1] || strUserRole === arrStrUserRoles[2] || strUserRole === arrStrUserRoles[4]) ) || 
+  	  ( strUserType === arrStrUserTypes[1] && (strUserRole === arrStrUserRoles[0] || strUserRole === arrStrUserRoles[2] ))
+  	)">
+  		<mat-card-title>
+  			<div class="data-title-wrapper">
+  				<div class="main-title inline">Processed Data</div>
+	  			<div class="status-title inline" *ngIf="arrObjProcessedFiles[0] && strSelectedProcessKey === arrObjProcessedFiles[0]['key']">Latest Data</div>
+	  			<div class="status-title blue-text inline" *ngIf="arrObjProcessedFiles[0] && strSelectedProcessKey !== arrObjProcessedFiles[0]['key']">Earlier Data</div>
+  			</div>
+			</mat-card-title>
+
+			<mat-card-subtitle>
+				Measurement Start Time: {{ strProcessStartTime ? strProcessStartTime : 'N/A' }}
+			</mat-card-subtitle>
+
+  		<mat-card-content class="overflow-x content">
+  			<div class="full-width chromatogram-area static-wrapper">
+  				<mat-card-subtitle>
+					Chromatogram(Data Upload Time: {{strChromatogramTime ? strChromatogramTime : 'N/A'}})
+  				</mat-card-subtitle>
+
+  				<div class="wrapper" *ngIf="bIsChromatogram;else alertChromatgramEle">
+						<div class="full-width display-area" *ngIf="arrPlotyChromatogramData.length; else errorChromatogramEle">
+							<app-plotly
+							[data]="arrPlotyChromatogramData"
+							[layout]="plotlyProcessLayout"
+							[options]="{}"
+							[style]="plotlyProcessStyle"
+							></app-plotly>
+						</div>
+
+						<ng-template #errorChromatogramEle>
+							<div class="alert alert-info full-width text-center">
+								Unknown format or empty file.
+							</div>
+						</ng-template>
+					</div>
+
+					<ng-template #alertChromatgramEle>
+						<div class="load-area">
+							<mat-spinner></mat-spinner>
+						</div>
+
+						<div class="full-width text-center" *ngIf="bIsProcessedData">
+							Parsing chromatogram file ...
+						</div>
+					</ng-template>
+  			</div>
+
+  			<div class="peak-area static-wrapper">
+					<mat-card-subtitle>
+						Detected Peaks(Data Upload Time: {{strPeakTime ? strPeakTime : 'N/A'}})
+					</mat-card-subtitle>
+
+					<div class="wrapper" *ngIf="bIsPeakLoad; else alertPeakLoadEle">
+						<div class="full-width table-responsive" *ngIf="arrStrPeakHeaders.length; else errorPeakEle">
+							<table class="table table-bordered">
+								<thead>
+									<tr>
+										<th *ngFor="let head of arrStrPeakHeaders">{{ head }}</th>
+									</tr>
+								</thead>
+
+								<tbody>
+									<tr *ngFor="let row of arrStrPeakValues">
+										<td *ngFor="let item of row">
+											{{ item }}
+										</td>
+									</tr>
+								</tbody>
+							</table>
+						</div>
+
+						<ng-template #errorPeakEle>
+							<div class="alert alert-info full-width text-center">
+								Unknown format or empty file.
+							</div>
+						</ng-template>
+					</div>
+
+					<ng-template #alertPeakLoadEle>
+						<div class="load-area">
+							<mat-spinner></mat-spinner>
+						</div>
+	
+						<div class="full-width text-center" *ngIf="bIsProcessedData">
+							Parsing peaks file ...
+						</div>
+					</ng-template>
+  			</div>
+  		</mat-card-content>
+  	</mat-card>
+
+  	<mat-card *ngIf="isEditStatus && nActionNumber === 3 && 
+  	( ( strUserType === arrStrUserTypes[0] && (strUserRole === arrStrUserRoles[0] || strUserRole === arrStrUserRoles[1] || strUserRole === arrStrUserRoles[2] || strUserRole === arrStrUserRoles[4]) ) || 
+  	  ( strUserType === arrStrUserTypes[1] && (strUserRole === arrStrUserRoles[0] || strUserRole === arrStrUserRoles[2] ))
+  	)">
+  		<mat-card-title>Processed Data Files</mat-card-title>
+  		<mat-card-content class="overflow-x content">
+  			<div class="flex-wrapper" *ngIf="!bIsProcessedData">
+				<mat-spinner></mat-spinner>
+			</div>
+
+  			<div class="static-wrapper" *ngIf="bIsProcessedData">
+				<mat-table class="omni-table" #processedTable [dataSource]="processedDataSource">
+					<!-- Position Column -->
+					<ng-container matColumnDef="position">
+						<mat-header-cell *matHeaderCellDef fxFlex="64px">
+							<div class="omni-table-header">
+								No.
+							</div>
+						</mat-header-cell>
+						<mat-cell *matCellDef="let element" fxFlex="64px">
+							<div class="omni-col-wrap">
+								{{ element['position'] + 1 }}
+							</div>
+						</mat-cell>
+					</ng-container>
+				
+					<!-- Measurement Start Time Column -->
+					<ng-container matColumnDef="startTimestamp">
+						<mat-header-cell *matHeaderCellDef fxFlex="150px">
+							<div class="omni-table-header">
+								Measurement Start Time
+							</div>
+						</mat-header-cell>
+						<mat-cell *matCellDef="let element" fxFlex="150px">
+							<div class="omni-col-wrap">
+								<div class="omni-col-item">
+									{{ element['startTimestamp'] }}
+								</div>
+							</div>
+						</mat-cell>
+					</ng-container>
+	
+					<!-- Step Category Column -->
+					<ng-container matColumnDef="type">
+						<mat-header-cell *matHeaderCellDef fxFlex="150px">
+							<div class="omni-table-header">
+								File Category
+							</div>
+						</mat-header-cell>
+						<mat-cell *matCellDef="let element" fxFlex="150px">
+							<div class="omni-col-wrap">
+								<div class="omni-col-item" *ngFor="let data of element['data']">
+									{{ data['type'] }}
+								</div>
+							</div>
+						</mat-cell>
+					</ng-container>
+		
+					<!-- Name Column -->
+					<ng-container matColumnDef="name">
+						<mat-header-cell *matHeaderCellDef fxFlex="250px">
+							<div class="omni-table-header">
+								Name
+							</div>
+						</mat-header-cell>
+						<mat-cell *matCellDef="let element" fxFlex="250px">
+							<div class="omni-col-wrap">
+								<div class="omni-col-item" *ngFor="let data of element['data']" [matTooltip]="data['name']">
+									<div class="ellipsis">
+										{{ data['name'] }}
+									</div>
+
+									<div class="pointer edit-item ml-1" fxLayoutAlign="center center">
+										<mat-icon (click)="onDownloadFile(data['url'], data['name'])">cloud_download</mat-icon>
+									</div>
+								</div>
+							</div>
+						</mat-cell>
+					</ng-container>
+
+					<!-- Upload Time Column -->
+					<ng-container matColumnDef="date">
+						<mat-header-cell *matHeaderCellDef fxFlex="150px">
+							<div class="omni-table-header">
+								Upload Time
+							</div>
+						</mat-header-cell>
+						<mat-cell *matCellDef="let element" fxFlex="150px">
+							<div class="omni-col-wrap">
+								<div class="omni-col-item" *ngFor="let data of element['data']">
+									{{ data['date'] }}
+								</div>
+							</div>
+						</mat-cell>
+					</ng-container>
+
+					<!-- Size Column -->
+					<ng-container matColumnDef="size">
+						<mat-header-cell *matHeaderCellDef fxFlex="100px">
+							<div class="omni-table-header">
+								Size
+							</div>
+						</mat-header-cell>
+						<mat-cell *matCellDef="let element" fxFlex="100px">
+							<div class="omni-col-wrap">
+								<div class="omni-col-item" *ngFor="let data of element['data']">
+									{{ data['size'] }}
+								</div>
+							</div>
+						</mat-cell>
+					</ng-container>
+				
+					<!-- Actions Column -->
+					<ng-container matColumnDef="actions">
+						<mat-header-cell *matHeaderCellDef fxFlex="150px">
+							<div class="omni-table-header">
+								Actions
+							</div>
+						</mat-header-cell>
+						<mat-cell *matCellDef="let element" fxFlex="150px">
+							<div class="omni-col-wrap">
+								<div class="omni-col-item">
+									<div class="pointer mx-3"
+										*ngIf="(bIsPeakLoad && bIsChromatogram) || (!(bIsPeakLoad && bIsChromatogram) && strSelectedProcessKey !== element['key']); else waitLoadButton"
+										matTooltip="Load"
+									>
+										<mat-icon color="primary" (click)="onLoadOneCycleData(element, 1)">play_arrow</mat-icon>
+									</div>
+									<ng-template #waitLoadButton>
+										<mat-spinner class="small-spinner mx-3" color="primary"></mat-spinner>
+									</ng-template>
+
+									<div class="pointer mx-3"
+										matTooltip="Delete"
+									>
+										<mat-icon color="warn" (click)="onDeleteProcessedData(element)">delete_outline</mat-icon>
+									</div>
+								</div>
+							</div>
+						</mat-cell>
+					</ng-container>
+
+					<!-- Comment Column -->
+					<ng-container matColumnDef="comment">
+						<mat-header-cell *matHeaderCellDef fxFlex>
+							<div class="omni-table-header">
+								Comment
+							</div>
+						</mat-header-cell>
+						<mat-cell *matCellDef="let element" fxFlex>
+							<div class="omni-col-wrap no-border">
+								<div class="omni-col-item relative">
+									<app-comment
+									[strComment]="element['comment']"
+									[key]="element['key']"
+									(updateComment)="onUpdateProcessComment($event)"
+									></app-comment>
+								</div>
+							</div>
+						</mat-cell>
+					</ng-container>
+		
+					<mat-header-row class="no-padding" *matHeaderRowDef="arrStrDisplayedColumns"></mat-header-row>
+					<mat-row class="no-padding" *matRowDef="let row; columns: arrStrDisplayedColumns;" [ngClass]="{'light-green-bg': strSelectedProcessKey === row.key}"></mat-row>
+				</mat-table>
+	
+				<mat-paginator #processedPaginator
+					[pageSize]="5"
+					[pageSizeOptions]="[5, 20, 50]"
+				>
+				</mat-paginator>
+			</div>
+  		</mat-card-content>
+	</mat-card>
+	  
+	<mat-card *ngIf="nActionNumber === 4">
+		<mat-card-title>Hardware tracking</mat-card-title>
+		<mat-card-content class="content">
+			<div class="flex-wrapper" *ngIf="!arrParams[2]['isSet']">
+			  <mat-spinner></mat-spinner>
+			</div>
+			<div class="table-responsive" *ngIf="arrParams[2]['isSet']"><!--display wrapper-->
+				<table class="table table-bordered fixed-table" *ngIf="!arrParams[2]['isRowHeader'] && arrParams[2]['types']"><!--header type-->
+					<thead>
+						<tr>
+							<th *ngFor="let head of arrParams[2]['types']['heads']">
+								{{ head.name }}
+							</th>
+						</tr>
+					</thead>
+
+					<tbody *ngIf="arrParams[2]['isSet']">
+						<tr *ngFor="let data of arrParams[2]['values']; let colInd = index;">
+							<td *ngFor="let head of arrParams[2]['types']['heads']">
+								<div *ngIf="data[head.id] === 'primaryKey'">
+									{{ colInd+1 }}
+								</div>
+
+								<div *ngIf="data[head.id] !== 'primaryKey'">
+									{{ data[head.id] ? data[head.id] : 'N/A' }}
+								</div>
+							</td>
+						</tr>
+					</tbody>
+				</table><!--header type-->
+
+				<table class="table table-bordered fixed-table" *ngIf="arrParams[2]['isRowHeader'] && arrParams[2]['types']"><!--header row type-->
+					<thead *ngIf="arrParams[2]['isHeaderShow']">
+						<tr>
+							<th *ngFor="let head of arrParams[2]['types']['heads']">
+								{{ head.name }}
+							</th>
+						</tr>
+					</thead>
+
+					<tbody *ngIf="arrParams[2]['isSet'] && arrParams[2]['isRowShow'] && arrParams[2]['types']['heads']">
+						<tr *ngFor="let row of arrParams[2]['types']['rows']">
+							<td  *ngFor="let head of arrParams[2]['types']['heads']">
+								<div *ngIf="head['primaryKey']">
+									{{ row.name }}
+								</div>
+
+								<div *ngIf="!head['primaryKey']">
+									<div *ngIf="arrParams[2]['values'] && arrParams[2]['values'][row.id]">
+										<app-input *ngIf="row.valueType !== arrValueTypes[4]"
+										[strInputType] = "row.valueType"
+										[strValue] = "arrParams[2]['values'][row.id][head.id]"
+										(doneEdit) = "onChangeDebugParameter($event, row.id, head.id)"
+										></app-input>
+
+										<app-input *ngIf="row.valueType === arrValueTypes[4]"
+										[strInputType] = "row.valueType"
+										[strValue] = "arrParams[2]['values'] ? arrParams[2]['values'][row.id][head.id] : ''"
+										[arrStrOptions] = "row.defaultValue"
+										(doneEdit) = "onChangeDebugParameter($event, row.id, head.id)"
+										></app-input>
+									</div>
+									<div *ngIf="!arrParams[2]['values'] || arrParams[2]['values'] && !arrParams[2]['values'][row.id]">
+										<app-input *ngIf="row.valueType !== arrValueTypes[4]"
+										[strInputType] = "row.valueType"
+										[strValue] = "''"
+										(doneEdit) = "onChangeDebugParameter($event, row.id, head.id)"
+										></app-input>
+										<app-input *ngIf="row.valueType === arrValueTypes[4]"
+										[strInputType] = "row.valueType"
+										[arrStrOptions] = "row.defaultValue"
+										[strValue] = "arrParams[2]['values'] ? arrParams[2]['values'][row.id][head.id]: ''"
+										(doneEdit) = "onChangeDebugParameter($event, row.id, head.id)"
+										></app-input>
+									</div>
+								</div>
+							</td>
+						</tr>
+					</tbody>
+				</table><!--header row type-->
+
+				<div class="alert alert-info full-width text-center" *ngIf="arrParams[2]['isSet'] && arrParams[2]['isRowShow'] && !arrParams[2]['types']['heads']">
+					You need to set the headers in sensor types edit page for this sensor type.
+				</div>
+		  </div><!--display wrapper-->
+		</mat-card-content>
+	</mat-card>
+
+  	<mat-card *ngIf="nActionNumber === 4">
+  		<mat-card-title>Chemical Recognition Parameters</mat-card-title>
+  		<mat-card-content class="content">
+  			<div class="flex-wrapper" *ngIf="!arrParams[1]['isSet']">
+				<mat-spinner></mat-spinner>
+			</div>
+  			<div class="table-responsive" *ngIf="arrParams[1]['isSet']"><!--display wrapper-->
+				<table class="table table-bordered fixed-table" *ngIf="!arrParams[1]['isRowHeader'] && arrParams[1]['types']"><!--header type-->
+					<thead>
+						<tr>
+							<th *ngFor="let head of arrParams[1]['types']['heads']">
+								{{head.name}}
+							</th>
+						</tr>
+					</thead>
+
+					<tbody *ngIf="arrParams[1]['isSet']">
+						<tr *ngFor="let data of arrParams[1]['values']; let colInd = index;">
+							<td *ngFor="let head of arrParams[1]['types']['heads']">
+								<div *ngIf="data[head.id] === 'primaryKey'">
+									{{colInd+1}}
+								</div>
+
+								<div *ngIf="data[head.id] !== 'primaryKey'">
+									{{data[head.id] ? data[head.id] : 'N/A'}}	
+								</div>
+							</td>
+						</tr>
+					</tbody>
+				</table><!--header type-->
+
+				<table class="table table-bordered fixed-table" *ngIf="arrParams[1]['isRowHeader'] && arrParams[1]['types']"><!--header row type-->
+					<thead *ngIf="arrParams[1]['isHeaderShow']">
+						<tr>
+							<th *ngFor="let head of arrParams[1]['types']['heads']">
+								{{head.name}}
+							</th>
+						</tr>
+					</thead>
+
+					<tbody *ngIf="arrParams[1]['isSet'] && arrParams[1]['isRowShow'] && arrParams[1]['types']['heads']">
+						<tr *ngFor="let row of arrParams[1]['types']['rows']">
+							<td  *ngFor="let head of arrParams[1]['types']['heads']">
+								<div *ngIf="head['primaryKey']">
+									{{row.name}}
+								</div>
+
+								<div *ngIf="!head['primaryKey']">
+									<div *ngIf="arrParams[1]['values'] && arrParams[1]['values'][row.id]">
+										<app-input *ngIf="row.valueType !== arrValueTypes[4]"
+										[strInputType] = "row.valueType"
+										[strValue] = "arrParams[1]['values'] && arrParams[1]['values'][row.id] ? arrParams[1]['values'][row.id][head.id] : ''"
+										(doneEdit) = "onChangeChemicalParam($event, row.id, head.id)"
+										></app-input>
+
+										<app-input *ngIf="row.valueType === arrValueTypes[4]"
+										[strInputType] = "row.valueType"
+										[strValue] = "arrParams[1]['values'] && arrParams[1]['values'][row.id] ? arrParams[1]['values'][row.id][head.id] : ''"
+										[arrStrOptions] = "row.defaultValue"
+										(doneEdit) = "onChangeChemicalParam($event, row.id, head.id)"
+										></app-input>
+									</div>
+									<div *ngIf="!arrParams[1]['values'] || arrParams[1]['values'] && !arrParams[1]['values'][row.id]">
+										<app-input *ngIf="row.valueType !== arrValueTypes[4]"
+										[strInputType] = "row.valueType"
+										[strValue] = "''"
+										(doneEdit) = "onChangeChemicalParam($event, row.id, head.id)"
+										></app-input>
+										<app-input *ngIf="row.valueType === arrValueTypes[4]"
+										[strInputType] = "row.valueType"
+										[arrStrOptions] = "row.defaultValue"
+										[strValue] = "arrParams[1]['values'] && arrParams[1]['values'][row.id] ? arrParams[1]['values'][row.id][head.id] : ''"
+										(doneEdit) = "onChangeChemicalParam($event, row.id, head.id)"
+										></app-input>
+									</div>
+								</div>
+							</td>
+						</tr>
+					</tbody>
+
+					<tbody *ngIf="arrParams[1]['isSet'] && arrParams[1]['isRowShow'] && !arrParams[1]['types']['heads']">
+						<tr *ngFor="let row of arrParams[1]['types']['rows']">
+							<td>{{row.name}}</td>
+							<td>
+								<div *ngIf="arrParams[1]['values']">
+									{{arrParams[1]['values'][row.id] ? arrParams[1]['values'][row.id] : 'N/A'}}		
+								</div>
+							</td>
+						</tr>
+					</tbody>
+				</table><!--header row type-->
+			</div><!--display wrapper-->
+  		</mat-card-content>
+	</mat-card>
+	  
+	<mat-card *ngIf="isEditStatus && nActionNumber === 1">
+  		<mat-card-title>
+  			<div class="data-title-wrapper">
+  				<div class="main-title inline">Analytical Data</div>
+	  			<div class="status-title inline" *ngIf="arrObjAnalyticList.length && strSelectedAnalyticCycle === arrObjAnalyticList[0]['cycleIndex']">Latest Data</div>
+	  			<div class="status-title blue-text inline" *ngIf="arrObjAnalyticList.length && strSelectedAnalyticCycle !== arrObjAnalyticList[0]['cycleIndex']">Earlier Data</div>
+  			</div>
+		</mat-card-title>
+		<mat-card-subtitle>
+			Measurement Start Time: {{ strAnalyticalStartTime ? strAnalyticalStartTime : 'N/A' }}
+		</mat-card-subtitle>
+		<mat-card-subtitle>
+			Data Upload Time: {{ strAnalyticalDate ? strAnalyticalDate : 'N/A' }}
+		</mat-card-subtitle>
+  	<mat-card-content class="overflow-x content">
+			<div *ngIf="bIsParseAnalyticData; else alertAnalyticalDataEle">
+				<div *ngIf="analyticalData.length; else errorAnalyticalDataEle">
+					<div class="control-rentention-visiblity">
+						<button mat-raised-button class="btn btn-primary" (click)="bIsShowRententionProperties = !bIsShowRententionProperties">
+							<div *ngIf="!bIsShowRententionProperties">Show Rentention Times</div>
+							<div *ngIf="bIsShowRententionProperties">Hide Rentention Times</div>
+						</button>
+					</div>
+		
+					<div class="table-responsive">
+						<table class="table table-bordered">
+							<thead>
+								<tr>
+									<th *ngFor="let item of analyticalData[0] | analyticDataFilter : arrAnalyticalInputs[0] : arrStrRetentionProperties : bIsShowRententionProperties">
+										{{ item.key }}
+									</th>
+								</tr>
+							</thead>
+		
+							<tbody>
+								<tr *ngFor="let data of analyticalData; let dataInd = index;">
+									<td *ngFor="let item of data | analyticDataFilter : arrAnalyticalInputs[dataInd] : arrStrRetentionProperties : bIsShowRententionProperties">
+										<div *ngIf="arrStrAnalyticalInputs.indexOf(item.key) === -1">
+											{{ item.value }}
+										</div>
+										
+										<div *ngIf="arrStrAnalyticalInputs.indexOf(item.key) !== -1" class="analytical-input">
+											<app-comment
+												[strComment]="item.value"
+												[key]="item.key"
+												(updateComment)="onUpdateAnalyticInput($event, dataInd)"
+											></app-comment>
+										</div>
+									</td>
+								</tr>
+							</tbody>
+						</table>
+					</div>
+				</div>
+
+				<ng-template #errorAnalyticalDataEle>
+					<div class="alert alert-info full-width text-center">
+						Unknown file format or empty file.
+					</div>
+				</ng-template>
+			</div>
+
+			<ng-template #alertAnalyticalDataEle>
+				<div class="load-area">
+					<mat-spinner></mat-spinner>
+				</div>
+	
+				<div class="alert alert-info text-center" role="alert" *ngIf="bIsAnalyticalData">
+					Parsing analytical data...
+				</div>
+			</ng-template>
+  	</mat-card-content>
+	</mat-card>
+
+  	<mat-card *ngIf="isEditStatus && nActionNumber === 1">
+  		<mat-card-title>Analytical Data Files</mat-card-title>
+  		<mat-card-content class="overflow-x content">
+  			<div class="load-area" *ngIf="!bIsAnalyticalData">
+				<mat-spinner></mat-spinner>
+			</div>
+
+  			<div class="static-wrapper" *ngIf="bIsAnalyticalData">
+				<mat-table #table class="omni-table" [dataSource]="analyticalDataSource">
+					<!-- Position Column -->
+					<ng-container matColumnDef="position">
+						<mat-header-cell *matHeaderCellDef fxFlex="64px">
+							<div class="omni-table-header">
+								No.
+							</div>
+						</mat-header-cell>
+						<mat-cell *matCellDef="let element" fxFlex="64px">
+							<div class="omni-col-wrap">
+								{{ element['position'] + 1 }}
+							</div>
+						</mat-cell>
+					</ng-container>
+				
+					<!-- Measurement Start Time Column -->
+					<ng-container matColumnDef="startTimestamp">
+						<mat-header-cell *matHeaderCellDef fxFlex="150px">
+								<div class="omni-table-header">
+									Measurement Start Time
+								</div>
+						</mat-header-cell>
+						<mat-cell *matCellDef="let element" fxFlex="150px">
+							<div class="omni-col-wrap">
+								<div class="omni-col-item">
+									{{ element['startTimestamp'] }}
+								</div>
+							</div>
+						</mat-cell>
+					</ng-container>
+	
+					<!-- Step Category Column -->
+					<ng-container matColumnDef="type">
+						<mat-header-cell *matHeaderCellDef fxFlex="150px">
+							<div class="omni-table-header">
+								Step Category
+							</div>
+						</mat-header-cell>
+						<mat-cell *matCellDef="let element" fxFlex="150px">
+							<div class="omni-col-wrap">
+								<div class="omni-col-item" *ngFor="let data of element['data']" [ngClass]="{'white-bg': strSelectedAnalyticKey !== data.key && strSelectedAnalyticCycle === data.cycleIndex}">
+									{{ data['type'] }}
+								</div>
+							</div>
+						</mat-cell>
+					</ng-container>
+		
+					<!-- Name Column -->
+					<ng-container matColumnDef="name">
+						<mat-header-cell *matHeaderCellDef fxFlex="250px">
+							<div class="omni-table-header">
+								Name
+							</div>
+						</mat-header-cell>
+						<mat-cell *matCellDef="let element" fxFlex="250px">
+							<div class="omni-col-wrap">
+								<div class="omni-col-item" *ngFor="let data of element['data']" [matTooltip]="data['name']" [ngClass]="{'white-bg': strSelectedAnalyticKey !== data.key && strSelectedAnalyticCycle === data.cycleIndex}">
+									<div class="ellipsis">
+										{{ data['name'] }}
+									</div>
+								</div>
+							</div>
+						</mat-cell>
+					</ng-container>
+	
+					<!-- Upload Time Column -->
+					<ng-container matColumnDef="date">
+						<mat-header-cell *matHeaderCellDef fxFlex="150px">
+							<div class="omni-table-header">
+								Upload Time
+							</div>
+						</mat-header-cell>
+						<mat-cell *matCellDef="let element" fxFlex="150px">
+							<div class="omni-col-wrap">
+								<div class="omni-col-item" *ngFor="let data of element['data']" [ngClass]="{'white-bg': strSelectedAnalyticKey !== data.key && strSelectedAnalyticCycle === data.cycleIndex}">
+									{{ data['date'] }}
+								</div>
+							</div>
+						</mat-cell>
+					</ng-container>
+	
+					<!-- Size Column -->
+					<ng-container matColumnDef="size">
+						<mat-header-cell *matHeaderCellDef fxFlex="100px">
+							<div class="omni-table-header">
+								Size
+							</div>
+						</mat-header-cell>
+						<mat-cell *matCellDef="let element" fxFlex="100px">
+							<div class="omni-col-wrap">
+								<div class="omni-col-item" *ngFor="let data of element['data']" [ngClass]="{'white-bg': strSelectedAnalyticKey !== data.key && strSelectedAnalyticCycle === data.cycleIndex}">
+									{{ data['size'] }}
+								</div>
+							</div>
+						</mat-cell>
+					</ng-container>
+				
+					<!-- Actions Column -->
+					<ng-container matColumnDef="actions">
+						<mat-header-cell *matHeaderCellDef fxFlex="150px">
+							<div class="omni-table-header">
+								Actions
+							</div>
+						</mat-header-cell>
+						<mat-cell *matCellDef="let element" fxFlex="150px">
+							<div class="omni-col-wrap">
+								<div class="omni-col-item" *ngFor="let data of element['data']" [ngClass]="{'white-bg': strSelectedAnalyticKey !== data.key && strSelectedAnalyticCycle === data.cycleIndex}">
+									<div class="pointer"
+										*ngIf="bIsParseAnalyticData || (!bIsParseAnalyticData && strSelectedAnalyticKey !== data['key']); else waitLoadButton"
+										matTooltip="Load"
+									>
+										<mat-icon color="primary" (click)="onLoadOneCycleData(data, 0)">play_arrow</mat-icon>
+									</div>
+									<ng-template #waitLoadButton>
+										<mat-spinner class="small-spinner" color="primary"></mat-spinner>
+									</ng-template>
+	
+									<div class="pointer mx-3"
+										matTooltip="Delete"
+									>
+										<mat-icon color="warn" (click)="onDeleteAnalyticalData(data)">delete_outline</mat-icon>
+									</div>
+	
+									<div class="pointer edit-item"
+										matTooltip="Download"
+									>
+										<mat-icon (click)="onDownloadFile(data['url'], data['name'])">cloud_download</mat-icon>
+									</div>
+								</div>
+							</div>
+						</mat-cell>
+					</ng-container>
+	
+					<!-- Comment Column -->
+					<ng-container matColumnDef="comment">
+						<mat-header-cell *matHeaderCellDef fxFlex>
+							<div class="omni-table-header">
+								Comment
+							</div>
+						</mat-header-cell>
+						<mat-cell *matCellDef="let element" fxFlex>
+							<div class="omni-col-wrap no-border">
+								<div class="omni-col-item relative" *ngFor="let data of element['data']" [ngClass]="{'white-bg': strSelectedAnalyticKey !== data.key && strSelectedAnalyticCycle === data.cycleIndex}">
+									<app-comment
+									[strComment]="data['comment']"
+									[key]="data['key']"
+									(updateComment)="onUpdateAnalyticComment($event)"
+									></app-comment>
+								</div>
+							</div>
+						</mat-cell>
+					</ng-container>
+		
+					<mat-header-row class="no-padding" *matHeaderRowDef="arrStrDisplayedColumns"></mat-header-row>
+					<mat-row class="no-padding" *matRowDef="let row; columns: arrStrDisplayedColumns;" [ngClass]="{'light-green-bg': strSelectedAnalyticCycle === row.cycleIndex}"></mat-row>
+				</mat-table>
+	
+				<mat-paginator #analyticalPaginator
+					[pageSize]="5"
+					[pageSizeOptions]="[5, 20, 50]">
+				</mat-paginator>
+			</div>
+  		</mat-card-content>
+  	</mat-card>
+
+  	<mat-card *ngIf="nActionNumber === 0">
+  		<mat-card-title>Data</mat-card-title>
+  		<mat-card-content class="content container-fluid">
+				<div class="row">
+					<div class="col-sm table-responsive" *ngIf="strUserRole !== arrStrUserRoles[3]">
+						<h5>Geo Location</h5>
+						<table class="table table-bordered table-striped">
+							<thead>
+								<tr>
+									<th>Title</th>
+									<th>Value</th>
+									<th *ngIf="strUserRole !== arrStrUserRoles[3]">Action</th>
+								</tr>
+							</thead>
+	
+							<tbody>
+								<tr>
+									<td>Name</td>
+	
+									<td>
+										<div *ngIf="nStatus!==1">
+											{{selectedSensor.name}}
+										</div>
+	
+										<div *ngIf="nStatus===1">
+											<mat-form-field class="full-width">
+												<input matInput type="text" [(ngModel)]="paramValue" required>
+											</mat-form-field>
+											<div *ngIf="error" class="alert alert-danger">
+												{{error}}
+											</div>	
+										</div>
+									</td>
+	
+									<td *ngIf="strUserRole !== arrStrUserRoles[3]">
+										<div fxLayout fxLayoutAlign="center">
+											<div class="edit-item pointer" fxLayout fxLayoutAlign="center center" *ngIf="nStatus!==1">
+												<mat-icon (click)="onEditValue(1)">edit</mat-icon>
+											</div>
+			
+											<mat-icon class="pointer mr-1" color="primary" (click)="onUpdate()" *ngIf="nStatus===1">check</mat-icon>
+			
+											<div class="delete-item pointer" fxLayout fxLayoutAlign="center center" *ngIf="nStatus===1">
+												<mat-icon (click)="cancel()">close</mat-icon>
+											</div>
+										</div>
+									</td>
+								</tr>
+	
+								<tr>
+									<td>Address</td>
+	
+									<td>
+										<div *ngIf="nStatus!==2">
+											{{selectedSensor.address}}
+										</div>
+	
+										<div *ngIf="nStatus===2">
+											<mat-form-field class="full-width">
+												<input matInput type="text" [(ngModel)]="paramValue" required>
+											</mat-form-field>
+											<div *ngIf="error" class="alert alert-danger">
+												{{error}}
+											</div>	
+										</div>
+									</td>
+	
+									<td *ngIf="strUserRole !== arrStrUserRoles[3]">
+										<div fxLayout fxLayoutAlign="center">
+											<div class="edit-item pointer" fxLayout fxLayoutAlign="center center" *ngIf="nStatus!==2">
+												<mat-icon (click)="onEditValue(2)">edit</mat-icon>
+											</div>
+			
+											<mat-icon class="pointer mr-1" color="primary" (click)="onUpdate()" *ngIf="nStatus===2">check</mat-icon>
+			
+											<div class="delete-item pointer" fxLayout fxLayoutAlign="center center" *ngIf="nStatus===2">
+												<mat-icon (click)="cancel()">close</mat-icon>
+											</div>
+										</div>
+									</td>
+								</tr>
+	
+								<tr>
+									<td>Latitude</td>
+	
+									<td>
+										<div *ngIf="nStatus!==4">
+											{{selectedSensor.lat}}
+										</div>
+	
+										<div *ngIf="nStatus===4">
+											<mat-form-field class="full-width">
+												<input matInput type="number" [(ngModel)]="paramValue" required>
+											</mat-form-field>
+											<div *ngIf="error" class="alert alert-danger">
+												{{error}}
+											</div>	
+										</div>
+									</td>
+	
+									<td *ngIf="strUserRole !== arrStrUserRoles[3]">
+										<div fxLayout fxLayoutAlign="center">
+											<div class="edit-item pointer" fxLayout fxLayoutAlign="center center" *ngIf="nStatus!==4">
+												<mat-icon (click)="onEditValue(4)">edit</mat-icon>
+											</div>
+			
+											<mat-icon class="pointer mr-1" color="primary" (click)="onUpdate()" *ngIf="nStatus===4">check</mat-icon>
+			
+											<div class="delete-item pointer" fxLayout fxLayoutAlign="center center" *ngIf="nStatus===4">
+												<mat-icon (click)="cancel()">close</mat-icon>
+											</div>
+										</div>
+									</td>
+								</tr>
+	
+								<tr>
+									<td>Longitude</td>
+	
+									<td>
+										<div *ngIf="nStatus!==5">
+											{{selectedSensor.lng}}
+										</div>
+	
+										<div *ngIf="nStatus===5">
+											<mat-form-field class="full-width">
+												<input matInput type="number" [(ngModel)]="paramValue" required>
+											</mat-form-field>
+											<div *ngIf="error" class="alert alert-danger">
+												{{error}}
+											</div>	
+										</div>
+									</td>
+	
+									<td *ngIf="strUserRole !== arrStrUserRoles[3]">
+										<div fxLayout fxLayoutAlign="center">
+											<div class="edit-item pointer" fxLayout fxLayoutAlign="center center" *ngIf="nStatus!==5">
+												<mat-icon (click)="onEditValue(5)">edit</mat-icon>
+											</div>
+			
+											<mat-icon class="pointer mr-1" color="primary" (click)="onUpdate()" *ngIf="nStatus===5">check</mat-icon>
+			
+											<div class="delete-item pointer" fxLayout fxLayoutAlign="center center" *ngIf="nStatus===5">
+												<mat-icon (click)="cancel()">close</mat-icon>
+											</div>
+										</div>
+									</td>
+								</tr>
+	
+								<tr>
+									<td>Description</td>
+	
+									<td>
+										<div *ngIf="nStatus!==6">
+											{{selectedSensor.description}}
+										</div>
+	
+										<div *ngIf="nStatus===6">
+											<mat-form-field class="full-width">
+												<textarea matInput [(ngModel)]="paramValue" required></textarea>
+											</mat-form-field>
+											<div *ngIf="error" class="alert alert-danger">
+												{{error}}
+											</div>	
+										</div>
+									</td>
+	
+									<td *ngIf="strUserRole !== arrStrUserRoles[3]">
+										<div fxLayout fxLayoutAlign="center">
+											<div class="edit-item pointer" fxLayout fxLayoutAlign="center center" *ngIf="nStatus!==6">
+												<mat-icon (click)="onEditValue(6)">edit</mat-icon>
+											</div>
+			
+											<mat-icon class="pointer mr-1" color="primary" (click)="onUpdate()" *ngIf="nStatus===6">check</mat-icon>
+			
+											<div class="delete-item pointer" fxLayout fxLayoutAlign="center center" *ngIf="nStatus===6">
+												<mat-icon (click)="cancel()">close</mat-icon>
+											</div>
+										</div>
+									</td>
+								</tr>
+	
+								<tr>
+									<td>Serial Number</td>
+	
+									<td>
+										<div *ngIf="nStatus!==7">
+											{{selectedSensor['serialNumber']}}
+										</div>
+	
+										<div *ngIf="nStatus===7">
+											<mat-form-field class="full-width">
+												<input matInput type="text" [(ngModel)]="paramValue" required>
+											</mat-form-field>
+											<div *ngIf="error" class="alert alert-danger">
+												{{error}}
+											</div>
+										</div>
+									</td>
+
+									<td *ngIf="strUserRole !== arrStrUserRoles[3]">
+										<div fxLayout fxLayoutAlign="center" *ngIf="strUserType === arrStrUserTypes[0]">
+											<div class="edit-item pointer" fxLayout fxLayoutAlign="center center" *ngIf="nStatus!==7">
+												<mat-icon (click)="onEditValue(7)">edit</mat-icon>
+											</div>
+			
+											<mat-icon class="pointer mr-1" color="primary" (click)="onUpdate()" *ngIf="nStatus===7">check</mat-icon>
+			
+											<div class="delete-item pointer" fxLayout fxLayoutAlign="center center" *ngIf="nStatus===7">
+												<mat-icon (click)="cancel()">close</mat-icon>
+											</div>
+										</div>
+									</td>
+								</tr>
+							</tbody>
+						</table>
+					</div>
+
+					<div class="col-sm">
+						<div class="network-status-container mb-4">
+							<h5>Network Status</h5>
+							<table class="table table-bordered table-striped">
+								<thead>
+									<tr>
+										<th>LAN IP</th>
+										<th>N/A</th>
+										<th>Signal Strength</th>
+									</tr>
+								</thead>
+								<tbody>
+									<tr>
+										<td>
+											<div fxLayout fxLayoutAlign="center center">
+												<mat-icon class="mr-2 wifi-icon">wifi</mat-icon>WIFI IP
+											</div>
+										<td>{{ isOnlineDevice ? strWifiIP : 'N/A' }}</td>
+										<td>
+											<app-network-power
+												[powerCount]="isOnlineDevice ? nWifiSignal : 0"
+											></app-network-power>
+										</td>
+									</tr>
+									<tr>
+										<td>
+											<div fxLayout fxLayoutAlign="center center">
+												<mat-icon class="mr-2 signal-icon">signal_cellular_alt</mat-icon>Cellular IP
+											</div>
+										</td>
+										<td>{{ isOnlineDevice ? strCellularIP : 'N/A' }}</td>
+										<td>
+											<app-network-power
+											[powerCount]="isOnlineDevice ? nCellularSignal : 0"
+										></app-network-power>
+										</td>
+									</tr>
+								</tbody>
+							</table>
+						</div>
+
+						<div class="system-parameters-container">
+							<h5>System Parameters</h5>
+							<mat-card-subtitle>
+								<div *ngIf="!bIsSensorTypeEdit;else editSensorType" fxLayout fxLayoutAlign>
+									Sensor Type: <div class="text-info">{{ strSensorTypeName }}</div>
+									<div class="pointer edit-item ml-3" fxLayout fxLayoutAlign="center center">
+										<mat-icon (click)="onEditSensorType()">edit</mat-icon>
+									</div>
+								</div>
+
+								<ng-template #editSensorType>
+									<div fxLayout fxLayoutAlign>
+										<mat-form-field class="sensor-type-handler full-width">
+											<mat-select placeholder="Sensor Type *" [(value)]="strSensorTypeId">
+												<mat-option *ngFor="let type of arrObjSensorTypes" [value]="type.key">
+													{{ type.name }}
+												</mat-option>
+											</mat-select>
+										</mat-form-field>
+						
+										<span class="pointer delete-item ml-3" fxLayout fxLayoutAlign="center center">
+											<mat-icon (click)="onDoneEditSensorType()">close</mat-icon>
+										</span>
+									</div>
+								</ng-template>
+								
+							</mat-card-subtitle>
+							<div class="flex-wrapper" *ngIf="!arrParams[0]['isSet']">
+								<mat-spinner></mat-spinner>
+							</div>
+							<div class="table-responsive" *ngIf="arrParams[0]['isSet']"><!--display wrapper-->
+								<table class="table table-bordered table-striped" *ngIf="!arrParams[0]['isRowHeader'] && arrParams[0]['types']"><!--header type-->
+									<thead>
+										<tr>
+											<th *ngFor="let head of arrParams[0]['types']['heads']">
+												{{head.name}}
+											</th>
+										</tr>
+									</thead>
+			
+									<tbody *ngIf="arrParams[0]['isSet']">
+										<tr *ngFor="let data of arrParams[0]['values']; let colInd = index;">
+											<td *ngFor="let head of arrParams[0]['types']['heads']">
+												<div *ngIf="data[head.id] === 'primaryKey'">
+													{{colInd+1}}
+												</div>
+			
+												<div *ngIf="data[head.id] !== 'primaryKey'">
+													{{data[head.id] ? data[head.id] : 'N/A'}}	
+												</div>
+											</td>
+										</tr>
+									</tbody>
+								</table><!--header type-->
+			
+								<table class="table table-bordered table-striped" *ngIf="arrParams[0]['isRowHeader'] && arrParams[0]['types']"><!--header row type-->
+									<thead *ngIf="arrParams[0]['isHeaderShow']">
+										<tr>
+											<th *ngFor="let head of arrParams[0]['types']['heads']">
+												{{head.name}}
+											</th>
+										</tr>
+									</thead>
+			
+									<tbody *ngIf="arrParams[0]['isSet'] && arrParams[0]['isRowShow'] && arrParams[0]['types']['heads']">
+										<tr *ngFor="let row of arrParams[0]['types']['rows']">
+											<td  *ngFor="let head of arrParams[0]['types']['heads']">
+												<div *ngIf="((!arrParams[0]['values'] || arrParams[0]['values'] && !arrParams[0]['values'][row.id]) &&  head['primaryKey']) || (arrParams[0]['values'] && arrParams[0]['values'][row.id] && arrParams[0]['values'][row.id][head.id] === 'primaryKey')">
+													{{row.name}}
+												</div>
+												<div *ngIf="arrParams[0]['values']">
+													<div *ngIf="arrParams[0]['values'][row.id] && arrParams[0]['values'][row.id][head.id] !== 'primaryKey'">
+														{{ arrParams[0]['values'][row.id][head.id] ? arrParams[0]['values'][row.id][head.id]: 'N/A' }}	
+													</div>
+												</div>
+											</td>
+										</tr>
+									</tbody>
+			
+									<tbody *ngIf="arrParams[0]['isSet'] && arrParams[0]['isRowShow'] && !arrParams[0]['types']['heads']">
+										<tr *ngFor="let row of arrParams[0]['types']['rows']">
+											<td>{{row.name}}</td>
+											<td>
+												<div *ngIf="arrParams[0]['values']">
+													{{arrParams[0]['values'][row.id] ? arrParams[0]['values'][row.id] : 'N/A'}}		
+												</div>
+											</td>
+										</tr>
+									</tbody>
+								</table><!--header row type-->
+							</div><!--display wrapper-->
+						</div>
+					</div>
+				</div>
+  		</mat-card-content>
+  	</mat-card>
+
+  	<mat-card *ngIf=" nActionNumber === 4 && 
+  	( ( strUserType === arrStrUserTypes[0] && (strUserRole === arrStrUserRoles[0] || strUserRole === arrStrUserRoles[1]) ) || 
+  	  ( strUserType === arrStrUserTypes[1] && strUserRole === arrStrUserRoles[0])
+  	)">
+		<mat-card-title>System Parameter Keys</mat-card-title>
+		<div *ngIf="arrParams && arrParams.length > 0 && arrParams[0]['types']">
+			<div *ngIf="arrParams[0]['types']['tableType'] === arrStrTableTypes[1]">
+				<div *ngIf="arrParams[0]['types']['heads'] && arrParams[0]['types']['heads'].length > 0">
+					<mat-card-subtitle>Headers</mat-card-subtitle>
+					<mat-card-content class="content">
+						<div class="table-responsive">
+							<table class="table table-bordered">
+								<thead>
+									<tr>
+										<th>Name</th>
+										<th>Key</th>
+									</tr>
+								</thead>
+			
+								<tbody>
+									<tr *ngFor="let type of arrParams[0]['types']['heads']">
+										<td>{{type['name']}}</td>
+										<td>{{type['id']}}</td>
+									</tr>
+								</tbody>
+							</table>
+						</div>
+					</mat-card-content>
+				</div>
+		
+				<div *ngIf="arrParams[0]['types']['rows'] && arrParams[0]['types']['rows'].length > 0">
+					<mat-card-subtitle>Rows</mat-card-subtitle>
+					<mat-card-content class="content">
+						<div class="table-responsive">
+							<table class="table table-bordered">
+								<thead>
+									<tr>
+										<th>Name</th>
+										<th>Key</th>
+									</tr>
+								</thead>
+				
+								<tbody>
+									<tr *ngFor="let type of arrParams[0]['types']['rows']">
+										<td>{{type['name']}}</td>
+										<td>{{type['id']}}</td>
+									</tr>
+								</tbody>
+							</table>
+						</div>
+					</mat-card-content>
+				</div>
+	
+				<div *ngIf="arrParams[0]['types']['tableType'] === arrStrTableTypes[0]">
+					<mat-card-subtitle>Headers</mat-card-subtitle>
+					<mat-card-content class="content">
+						<div class="table-responsive">
+							<table class="table table-bordered">
+								<thead>
+									<tr>
+										<th>Name</th>
+										<th>Key</th>
+									</tr>
+								</thead>
+			
+								<tbody>
+									<tr *ngFor="let type of arrParams[0]['types']['heads']">
+										<td>{{type['name']}}</td>
+										<td>{{type['id']}}</td>
+									</tr>
+								</tbody>
+							</table>
+						</div>
+					</mat-card-content>
+				</div>
+			</div>
+		</div>
+	</mat-card>
+	  
+	<mat-card *ngIf=" nActionNumber === 4 && 
+		( ( strUserType === arrStrUserTypes[0] && (strUserRole === arrStrUserRoles[0] || strUserRole === arrStrUserRoles[1]) ) || 
+			( strUserType === arrStrUserTypes[1] && strUserRole === arrStrUserRoles[0])
+		)">
+		<mat-card-title>Analytical Keys</mat-card-title>
+		<div *ngIf="arrParams && arrParams.length > 1 && arrParams[1]['types']">
+			<div *ngIf="arrParams[1]['types']['tableType'] === arrStrTableTypes[1]">
+				<div *ngIf="arrParams[1]['types']['heads'] && arrParams[1]['types']['heads'].length > 0">
+					<mat-card-subtitle>Headers</mat-card-subtitle>
+					<mat-card-content class="content">
+						<div class="table-responsive">
+							<table class="table table-bordered">
+								<thead>
+									<tr>
+										<th>Name</th>
+										<th>Key</th>
+									</tr>
+								</thead>
+			
+								<tbody>
+									<tr *ngFor="let type of arrParams[1]['types']['heads']">
+										<td>{{type['name']}}</td>
+										<td>{{type['id']}}</td>
+									</tr>
+								</tbody>
+							</table>
+						</div>
+					</mat-card-content>
+				</div>
+		
+				<div *ngIf="arrParams[1]['types']['rows'] && arrParams[1]['types']['rows'].length > 0">
+					<mat-card-subtitle>Rows</mat-card-subtitle>
+					<mat-card-content class="content">
+						<div class="table-responsive">
+							<table class="table table-bordered">
+								<thead>
+									<tr>
+										<th>Name</th>
+										<th>Key</th>
+									</tr>
+								</thead>
+				
+								<tbody>
+									<tr *ngFor="let type of arrParams[1]['types']['rows']">
+										<td>{{type['name']}}</td>
+										<td>{{type['id']}}</td>
+									</tr>
+								</tbody>
+							</table>
+						</div>
+					</mat-card-content>
+				</div>
+	
+				<div *ngIf="arrParams[1]['types']['tableType'] === arrStrTableTypes[0]">
+					<mat-card-subtitle>Headers</mat-card-subtitle>
+					<mat-card-content class="content">
+						<div class="table-responsive">
+							<table class="table table-bordered">
+								<thead>
+									<tr>
+										<th>Name</th>
+										<th>Key</th>
+									</tr>
+								</thead>
+			
+								<tbody>
+									<tr *ngFor="let type of arrParams[1]['types']['heads']">
+										<td>{{type['name']}}</td>
+										<td>{{type['id']}}</td>
+									</tr>
+								</tbody>
+							</table>
+						</div>
+					</mat-card-content>
+				</div>
+			</div>
+		</div>
+	</mat-card>
+
+	<mat-card *ngIf="nActionNumber === 4">
+		<mat-card-title>System Parameter Logs</mat-card-title>
+		<mat-card-content>
+			<app-system-parameter-logs
+				[sensorKey]="sensorKey"
+				[sensorType]="sensorType"
+			></app-system-parameter-logs>
+		</mat-card-content>
+	</mat-card>
+</div>
+

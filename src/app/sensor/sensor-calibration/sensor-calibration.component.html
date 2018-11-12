@@ -1,0 +1,334 @@
+<div class="main-app calibration-container p-3">
+  <mat-card>
+    <mat-card-title>Control</mat-card-title>
+    <mat-card-content>
+      <div class="status-area">
+        Status: {{calibrationStaus}}
+      </div>
+
+      <div class="action-area mt-3">
+        <button mat-stroked-button color="primary" class="mr-3" (click)="onStartCalibration()">Calibration Mode On</button>
+        <button mat-stroked-button (click)="onStopCalibration()">Calibration Mode Off</button>
+      </div>
+    </mat-card-content>
+  </mat-card>
+  <mat-card class="my-3">
+    <mat-card-content>
+      <div>
+        <table class="full-width table table-bordered">
+          <tbody>
+            <tr>
+              <td>Average barometric pressure at sensor field location</td>
+              <td>
+                <mat-form-field>
+                  <input type='number' matInput [(ngModel)]="barometricPressure">
+                </mat-form-field>
+              </td>
+              <td>mm Hg</td>
+              <td><button mat-stroked-button (click)="onUpdateBP()">Update</button></td>
+              <td>
+                {{ savedBarometricPressure }}
+              </td>
+              <td>
+                <mat-form-field>
+                  <textarea type='textarea' matInput [(ngModel)]="barometricPressureComment"></textarea>
+                </mat-form-field>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <div fxLayout fxLayoutAlign="space-between start">
+        <div fxFlex="50" class="mx-3">
+          <mat-card-title>Saved Calibration History</mat-card-title>
+          <table class="full-width table table-bordered">
+            <thead>
+              <tr>
+                <th scope="col">Title</th>
+                <th scope="col">Live</th>
+                <th scope="col">Unit</th>
+                <th scope="col">Comments</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Zero Gas</td>
+                <td>{{ selectedCalibration?.zeroGas }}</td>
+                <td>mV</td>
+                <td>{{ selectedCommentCalibration?.zeroGas }}</td>
+              </tr>
+              <tr>
+                <td>Span Gas</td>
+                <td>{{ selectedCalibration?.spanGas }}</td>
+                <td>mV</td>
+                <td>{{ selectedCommentCalibration?.spanGas }}</td>
+              </tr>
+              <tr>
+                <td>Temparature</td>
+                <td>{{ selectedCalibration?.temparature }}</td>
+                <td>C</td>
+                <td>{{ selectedCommentCalibration?.temparature }}</td>
+              </tr>
+              <tr>
+                <td>Humidity</td>
+                <td>{{ selectedCalibration?.humidity }}</td>
+                <td>%</td>
+                <td>{{ selectedCommentCalibration?.humidity }}</td>
+              </tr>
+              <tr>
+                <td>Barometric Pressure</td>
+                <td>{{ selectedCalibration?.barometricPressure }}</td>
+                <td>mm Hg</td>
+                <td>{{ selectedCommentCalibration?.barometricPressure }}</td>
+              </tr>
+              <tr>
+                <td>Span Gas Concentration</td>
+                <td>{{ selectedCalibration?.spanGasConcentration }}</td>
+                <td>ppm</td>
+                <td>{{ selectedCommentCalibration?.spanGasConcentration }}</td>
+              </tr>
+            </tbody>
+          </table>
+
+          <div class="mt-3">
+            <button mat-stroked-button color="primary" (click)="onLoadRecentCalibration()">Latest Applied Calibration Values</button>
+          </div>
+        </div>
+
+        <div fxFlex="50" class="mx-3">
+          <mat-card-title>Edit and Save</mat-card-title>
+          <table class="full-width table table-bordered">
+            <thead>
+              <tr>
+                <th scope="col">Title</th>
+                <th scope="col">Live</th>
+                <th scope="col">Unit</th>
+                <th scope="col">Action</th>
+                <th scope="col">Saved Value</th>
+                <th scope="col">Comments</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Zero Gas</td>
+                <td>{{ originCalibration?.zeroGas }}</td>
+                <td>mV</td>
+                <td>
+                  <button mat-stroked-button (click)="onSet('zeroGas')">Set</button>
+                </td>
+                <td>
+                  <mat-form-field>
+                    <input type='number' [(ngModel)]='savedCalibration.zeroGas' matInput>
+                  </mat-form-field>
+                </td>
+                <td>
+                  <mat-form-field>
+                    <textarea type='textarea' [(ngModel)]='savedCommentCalibration.zeroGas' matInput></textarea>
+                  </mat-form-field>
+                </td>
+              </tr>
+              <tr>
+                <td>Span Gas</td>
+                <td>{{ originCalibration?.spanGas }}</td>
+                <td>mV</td>
+                <td>
+                  <button mat-stroked-button (click)="onSet('spanGas')">Set</button>
+                </td>
+                <td>
+                  <mat-form-field>
+                    <input type='number' [(ngModel)]='savedCalibration.spanGas' matInput>
+                  </mat-form-field>
+                </td>
+                <td>
+                  <mat-form-field>
+                    <textarea type='textarea' [(ngModel)]='savedCommentCalibration.spanGas' matInput></textarea>
+                  </mat-form-field>
+                </td>
+              </tr>
+              <tr>
+                <td>Temparature</td>
+                <td>{{ originCalibration?.temparature }}</td>
+                <td>C</td>
+                <td>
+                  <button mat-stroked-button (click)="onSet('temparature')">Set</button>
+                </td>
+                <td>
+                  <mat-form-field>
+                    <input type='number' [(ngModel)]='savedCalibration.temparature' matInput>
+                  </mat-form-field>
+                </td>
+                <td>
+                  <mat-form-field>
+                    <textarea type='textarea' [(ngModel)]='savedCommentCalibration.temparature' matInput></textarea>
+                  </mat-form-field>
+                </td>
+              </tr>
+              <tr>
+                <td>Humidity</td>
+                <td>{{ originCalibration?.humidity }}</td>
+                <td>%</td>
+                <td>
+                  <button mat-stroked-button (click)="onSet('humidity')">Set</button>
+                </td>
+                <td>
+                  <mat-form-field>
+                    <input type='number' [(ngModel)]='savedCalibration.humidity' matInput>
+                  </mat-form-field>
+                </td>
+                <td>
+                  <mat-form-field>
+                    <textarea type='textarea' [(ngModel)]='savedCommentCalibration.humidity' matInput></textarea>
+                  </mat-form-field>
+                </td>
+              </tr>
+              <tr>
+                <td>Barometric Pressure</td>
+                <td>{{ originCalibration?.barometricPressure }}</td>
+                <td>mm Hg</td>
+                <td>
+                  <button mat-stroked-button (click)="onSet('barometricPressure')">Set</button>
+                </td>
+                <td>
+                  <mat-form-field>
+                    <input type='number' [(ngModel)]='savedCalibration.barometricPressure' matInput>
+                  </mat-form-field>
+                </td>
+                <td>
+                  <mat-form-field>
+                    <textarea type='textarea' [(ngModel)]='savedCommentCalibration.barometricPressure' matInput></textarea>
+                  </mat-form-field>
+                </td>
+              </tr>
+              <tr>
+                <td>Span Gas Concentration</td>
+                <td>{{ originCalibration?.spanGasConcentration }}</td>
+                <td>ppm</td>
+                <td>
+                  <button mat-stroked-button (click)="onSet('spanGasConcentration')">Set</button>
+                </td>
+                <td>
+                  <mat-form-field>
+                    <input type='number' [(ngModel)]='savedCalibration.spanGasConcentration' matInput>
+                  </mat-form-field>
+                </td>
+                <td>
+                  <mat-form-field>
+                    <textarea type='textarea' [(ngModel)]='savedCommentCalibration.spanGasConcentration' matInput></textarea>
+                  </mat-form-field>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+
+          <div class="mt-3" fxLayout fxLayoutAlign="center center">
+            <button
+              mat-stroked-button
+              color="primary"
+              class="mr-3"
+              (click)="onSaveCalibration()"
+            >Save</button>
+            <button mat-stroked-button (click)="onCancelCalibration()">Cancel</button>
+          </div>
+        </div>
+      </div>
+    </mat-card-content>
+  </mat-card>
+
+  <mat-card>
+    <mat-card-content>
+      <div>
+        <mat-table class="omni-table" [dataSource]="dataSource">
+          <!-- No Column -->
+          <ng-container matColumnDef="no">
+            <mat-header-cell *matHeaderCellDef fxFlex="50px">
+              <div class="omni-table-header">
+                No.
+              </div>
+            </mat-header-cell>
+            <mat-cell *matCellDef="let element" fxFlex="50px">
+              <div class="omni-col-wrap">
+                {{ element?.no }}
+              </div>
+            </mat-cell>
+          </ng-container>
+
+          <!-- Time Column -->
+          <ng-container matColumnDef="time">
+            <mat-header-cell *matHeaderCellDef>
+              <div class="omni-table-header">
+                Saved Date
+              </div>
+            </mat-header-cell>
+            <mat-cell *matCellDef="let element">
+              <div class="omni-col-wrap">
+                {{ element?.time }}
+              </div>
+            </mat-cell>
+          </ng-container>
+
+          <!-- Action Column -->
+          <ng-container matColumnDef="action">
+            <mat-header-cell *matHeaderCellDef>
+              <div class="omni-table-header">
+                Action
+              </div>
+            </mat-header-cell>
+            <mat-cell *matCellDef="let element">
+              <div class="omni-col-wrap">
+                <div class="omni-col-wrap">
+                  <div class="omni-col-item">
+                    <div class="pointer"
+                      matTooltip="Load"
+                    >
+                      <mat-icon color="primary" (click)="onLoad(element)">play_arrow</mat-icon>
+                    </div>
+
+                    <div class="pointer mx-3"
+                      matTooltip="Submit"
+                    >
+                      <mat-icon color="primary" (click)="onSubmit(element)">launch</mat-icon>
+                    </div>
+    
+                    <div class="pointer"
+                      matTooltip="Delete"
+                    >
+                      <mat-icon color="warn" (click)="onDelete(element)">delete_outline</mat-icon>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </mat-cell>
+          </ng-container>
+        
+          <!-- Comment Column -->
+          <ng-container matColumnDef="comment">
+            <mat-header-cell *matHeaderCellDef>
+              <div class="omni-table-header">
+                Comment
+              </div>
+            </mat-header-cell>
+            <mat-cell *matCellDef="let element">
+                <div class="omni-col-wrap no-border">
+                  <div class="omni-col-item relative">
+                    <app-comment
+                      [strComment]="element['comment']"
+                      [key]="element['key']"
+                      (updateComment)="onUpdateComment($event)"
+                    ></app-comment>
+                  </div>
+                </div>
+            </mat-cell>
+          </ng-container>
+
+          <mat-header-row *matHeaderRowDef="columns"></mat-header-row>
+          <mat-row *matRowDef="let row; columns: columns;" [ngClass]="{'light-green-bg': selectedCalibrationKey === row.key}"></mat-row>
+        </mat-table>
+
+        <mat-paginator #paginator
+          [pageSize]="5"
+          [pageSizeOptions]="[5, 10, 20]">
+        </mat-paginator>
+      </div>
+    </mat-card-content>
+  </mat-card>
+</div>

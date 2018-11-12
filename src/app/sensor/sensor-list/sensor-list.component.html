@@ -1,0 +1,263 @@
+<div class="sensor-list-container m-3">
+  <mat-card>
+    <mat-card-title>
+      <div fxLayout fxLayoutAlign="start center">
+        <button mat-icon-button color="primary" class="mr-1" (click)="onBack()">
+          <mat-icon>keyboard_return</mat-icon>
+        </button>
+        Sensors List
+      </div>
+    </mat-card-title>
+    <mat-card-content class="overflow-x">
+      <div class="load-area" *ngIf="!bIsGetData">
+        <mat-spinner></mat-spinner>
+      </div>
+
+      <div class="static-wrapper" *ngIf="bIsGetData">
+        <div class="mb-3" fxLayout fxLayoutAlign="start center">
+          <div fxFlex="50">
+            <mat-form-field class="full-width">
+              <input type='text' [(ngModel)]='strFilerText' matInput placeholder='Search...' (keyup)='onUpdateFilter($event)'>
+            </mat-form-field>
+          </div>
+
+          <div fxFlex="50" fxLayoutAlign="end center">
+            <button mat-stroked-button color="primary" [matMenuTriggerFor]="menu">Filter By Columns</button>
+            <mat-menu #menu="matMenu">
+              <div mat-menu-item *ngFor="let filter of arrFilterColumns" (click)="$event.stopPropagation()">
+                <mat-checkbox color="primary" [checked]="filter.value" [(ngModel)]="filter.value" (change)='onChangeColumnFilter(filter.key, $event)'>{{ filter?.label }}</mat-checkbox>
+              </div>
+            </mat-menu>
+          </div>
+        </div>
+
+        <div class="sensor-list-table-container">
+          <mat-table class="omni-table" [dataSource]="dataSource">
+            <!-- Position Column -->
+            <ng-container matColumnDef="position">
+              <mat-header-cell *matHeaderCellDef fxFlex="50px">
+                <div class="omni-table-header">
+                  No.
+                </div>
+              </mat-header-cell>
+              <mat-cell *matCellDef="let element" fxFlex="50px">
+                <div class="omni-col-wrap">
+                  {{ element?.position }}
+                </div>
+              </mat-cell>
+            </ng-container>
+  
+            <!-- Serial Number Column -->
+            <ng-container matColumnDef="serialNumber">
+              <mat-header-cell *matHeaderCellDef fxFlex="150px">
+                <div class="omni-table-header">
+                  Serial number (raspberry pi serial number)
+                </div>
+              </mat-header-cell>
+              <mat-cell *matCellDef="let element" fxFlex="150px">
+                <div class="omni-col-wrap">
+                  {{ element?.serialNumber }}
+                </div>
+              </mat-cell>
+            </ng-container>
+  
+            <!-- Customer Name Column -->
+            <ng-container matColumnDef="customerName">
+              <mat-header-cell *matHeaderCellDef fxFlex="100px">
+                <div class="omni-table-header">
+                  Name of customer
+                </div>
+              </mat-header-cell>
+              <mat-cell *matCellDef="let element" fxFlex="100px">
+                <div class="omni-col-wrap">
+                  {{ element?.customerName }}
+                </div>
+              </mat-cell>
+            </ng-container>
+  
+            <!-- Zone Name Column -->
+            <ng-container matColumnDef="zoneName">
+              <mat-header-cell *matHeaderCellDef fxFlex="100px">
+                <div class="omni-table-header">
+                  Name of zone
+                </div>
+              </mat-header-cell>
+              <mat-cell *matCellDef="let element" fxFlex="100px">
+                <div class="omni-col-wrap">
+                  {{ element?.zoneName }}
+                </div>
+              </mat-cell>
+            </ng-container>
+        
+            <!-- Sensor Name Column -->
+            <ng-container matColumnDef="sensorName">
+              <mat-header-cell *matHeaderCellDef fxFlex="100px">
+                <div class="omni-table-header">
+                  Name of sensor
+                </div>
+              </mat-header-cell>
+              <mat-cell *matCellDef="let element" fxFlex="100px">
+                <div class="omni-col-wrap">
+                  {{ element?.sensorName }}
+                </div>
+              </mat-cell>
+            </ng-container>
+  
+            <!-- Status Column -->
+            <ng-container matColumnDef="status">
+              <mat-header-cell *matHeaderCellDef fxFlex="100px">
+                <div class="omni-table-header">
+                  Status
+                </div>
+              </mat-header-cell>
+              <mat-cell *matCellDef="let element" fxFlex="100px">
+                <div fxLayout="row" fxLayoutAlign="center center">
+                  <div class="status" [ngClass]="{
+                    'red': element['status'] === 0,
+                    'green': element['status'] === 1,
+                    'blue': element['status'] === 2
+                  }"></div>
+                </div>
+              </mat-cell>
+            </ng-container>
+  
+            <!-- Configuration Column -->
+            <ng-container matColumnDef="configure">
+              <mat-header-cell *matHeaderCellDef fxFlex="210px">
+                <div class="omni-table-header">
+                  Assigned configuration for customer
+                </div>
+              </mat-header-cell>
+              <mat-cell *matCellDef="let element" fxFlex="210px">
+                <div fxLayout="row" fxLayoutAlign="center center" *ngIf="!element['fileName'] && !element['fileKey']">
+                  <mat-icon
+                    color="primary"
+                    class="pointer"
+                    (click)="onConfigure(element)"
+                  >assignment</mat-icon>
+                </div>
+  
+                <div fxLayout="row" fxLayoutAlign="center center" *ngIf="element['fileName'] && element['fileKey']">
+                  <div fxFlex="150px" class="p-2">
+                    {{ element?.fileName }}
+                  </div>
+                  <div class="p-2" fxFlex="60px" fxLayout fxLayoutAlign="space-around center">
+                    <mat-icon
+                      class="pointer green-text"
+                      (click)="onDownloadFile(element)"
+                      matTooltip="Download"
+                      *ngIf="(element['key'] !== selectedSensorKey) || (element['key'] === selectedSensorKey && !bIsDownloadProcess)"
+                    >cloud_download</mat-icon>
+                    <mat-spinner class="small-spinner green-text" *ngIf="(element['key'] === selectedSensorKey && bIsDownloadProcess)"></mat-spinner>
+  
+                    <mat-icon
+                      *ngIf="(element['key'] !== selectedSensorKey) || (element['key'] === selectedSensorKey && !bIsDeleteProcess)"
+                      class="pointer"
+                      color="warn"
+                      matTooltip="Delete"
+                      (click)="onDeleteConfig(element)"
+                    >delete_outline</mat-icon>
+  
+                    <mat-spinner class="small-spinner" color="warn" *ngIf="(element['key'] === selectedSensorKey && bIsDeleteProcess)"></mat-spinner>
+                  </div>
+                </div>
+              </mat-cell>
+            </ng-container>
+  
+            <!-- Time Column -->
+            <ng-container matColumnDef="time">
+              <mat-header-cell *matHeaderCellDef fxFlex="150px">
+                <div class="omni-table-header">
+                  Sensor Registered date and time by customer for first time
+                </div>
+              </mat-header-cell>
+              <mat-cell *matCellDef="let element" fxFlex="150px">
+                <div class="omni-col-wrap">
+                  {{ element?.time }}
+                </div>
+              </mat-cell>
+            </ng-container>
+  
+            <!-- Daily Test Column -->
+            <ng-container matColumnDef="dailyTest">
+              <mat-header-cell *matHeaderCellDef fxFlex="150px">
+                <div class="omni-table-header">
+                  Set daily test schedule
+                </div>
+              </mat-header-cell>
+              <mat-cell *matCellDef="let element" fxFlex="150px">
+                <div class="omni-col-wrap">
+                  <div fxLayout="row" fxLayoutAlign="center center" *ngIf="!element['configFileKey'] || (!element['configSchedule'] && element['configSchedule'] !== 0);else scheduleElement">
+                    <mat-icon
+                      color="primary"
+                      class="pointer"
+                      (click)="onSetDailyTest(element)"
+                    >schedule</mat-icon>
+                  </div>
+  
+                  <ng-template #scheduleElement>
+                    <div fxLayout="row" fxLayoutAlign="space-around center">
+                      <div class="p-2">
+                        {{ element?.configSchedule }} (PST)
+                      </div>
+                      <div class="p-2" fxLayout fxLayoutAlign="space-around center">
+                        <mat-icon
+                          class="pointer"
+                          color="warn"
+                          (click)="onDeleteSchedule(element)"
+                        >delete_outline</mat-icon>
+      
+                        <!-- <mat-spinner class="small-spinner" color="warn" *ngIf="(element['key'] === selectedSensorKey && bIsDeleteProcess)"></mat-spinner> -->
+                      </div>
+                    </div>
+                  </ng-template>
+                </div>
+              </mat-cell>
+            </ng-container>
+
+            <!-- Comment Column -->
+            <ng-container matColumnDef="pidCalibration">
+              <mat-header-cell *matHeaderCellDef fxFlex="220px">
+                <div class="omni-table-header">
+                  PID calibration
+                </div>
+              </mat-header-cell>
+              <mat-cell *matCellDef="let element" fxFlex="220px">
+                <div fxLayout fxLayoutAlign="space-around center" class="mx-2 full-width">
+                  <div *ngIf="element?.calibrationSavedTimestamp">{{element?.calibrationSavedTimestamp}}</div>
+                  <a mat-stroked-button [routerLink]="['/calibration/' + element?.key]">Calibration</a>
+                </div>
+              </mat-cell>
+            </ng-container>
+  
+            <!-- Comment Column -->
+            <ng-container matColumnDef="comment">
+              <mat-header-cell *matHeaderCellDef fxFlex>
+                <div class="omni-table-header">
+                  Comment
+                </div>
+              </mat-header-cell>
+              <mat-cell *matCellDef="let element" fxFlex>
+                <div class="omni-col-wrap relative">
+                  <app-comment
+                    [strComment]="element['comment']"
+                    [key]="element['key']"
+                    (updateComment)="onChangeComment($event)"
+                  ></app-comment>
+                </div>
+              </mat-cell>
+            </ng-container>
+  
+            <mat-header-row *matHeaderRowDef="arrStrColumns"></mat-header-row>
+            <mat-row *matRowDef="let row; columns: arrStrColumns;"></mat-row>
+          </mat-table>
+        </div>
+
+        <mat-paginator #paginator
+          [pageSize]="10"
+          [pageSizeOptions]="[5, 10, 20]">
+        </mat-paginator>
+      </div>
+    </mat-card-content>
+  </mat-card>
+</div>

@@ -1,0 +1,14 @@
+<div class="omniscent-app">
+  <div class="header">
+    <app-top-bar></app-top-bar>
+  </div>
+
+  <div class="body">
+    <router-outlet></router-outlet>		
+  </div>
+
+  <div class="notifications">
+    <app-spinner></app-spinner>
+    <simple-notifications [options]="objDefaultOptions"></simple-notifications>
+  </div>
+</div>

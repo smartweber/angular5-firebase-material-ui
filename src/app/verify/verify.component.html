@@ -1,0 +1,84 @@
+<div class="verify-area full-height" fxLayout="column" fxLayoutAlign="center center" *ngIf="isPageLoad">
+  <img class="logo" src="https://firebasestorage.googleapis.com/v0/b/omniscent-2889e.appspot.com/o/logos%2FOmniscentLogo.png?alt=media&token=676e1f64-59a1-40de-8ab9-25efcb6112d2">
+  
+  <div *ngIf="type === 0">
+    <mat-progress-bar mode="indeterminate" *ngIf="isSend"></mat-progress-bar>
+    <mat-card>
+      <mat-card-title>
+        Please set your account password
+      </mat-card-title>
+
+      <mat-card-content>
+        <form [formGroup]="signUpForm" (ngSubmit)="onSubmitSignUp()">
+          <div class="form-group">
+            <mat-form-field  class="full-width">
+              <input type="password" matInput placeholder="password" formControlName="password" name="password" required>
+              <mat-error *ngIf="formErrors['password']">
+                {{ formErrors['password'] }}
+              </mat-error>
+            </mat-form-field>
+          </div>
+
+          <div class="form-group">
+            <mat-form-field  class="full-width">
+              <input type="password" matInput placeholder="confirm password" formControlName="confirmPassword" name="confirmPassword" required>
+              <mat-error *ngIf="formErrors['confirmPassword']">
+                {{ formErrors['confirmPassword'] }}
+              </mat-error>
+            </mat-form-field>
+          </div>
+
+          <div class="form-group">
+            <button mat-raised-button class="full-width" color="primary" [disabled]="signUpForm.invalid || isSend">
+              Create account
+            </button>
+          </div>
+
+          <div class="text-center" *ngIf="!isSend">
+            <a routerLink="/login" class="blue-text">
+              Login
+            </a>
+          </div>
+        </form>
+      </mat-card-content>
+    </mat-card>
+  </div>
+
+  <div *ngIf="type === 1">
+    <mat-card>
+      <mat-progress-bar mode="indeterminate" *ngIf="isSend"></mat-progress-bar>
+      <mat-card-title>
+        Can't sign in?
+      </mat-card-title>
+
+      <mat-card-content>
+        <form [formGroup]="forgotPasswordForm" (ngSubmit)="onSubmitForgotPassword()">
+          <div class="form-group">
+            <mat-form-field class="full-width">
+              <input matInput placeholder="E-MAIL" formControlName="email" name="email" required>
+              <mat-error *ngIf="formErrors['email']">
+                {{ formErrors['email'] }}
+              </mat-error>
+            </mat-form-field>
+          </div>
+
+          <div class="form-group">
+            <button mat-raised-button class="full-width" color="primary" *ngIf="!isResend" [disabled]="forgotPasswordForm.invalid || isSend">
+              Send reset link
+            </button>
+
+            <button mat-raised-button class="full-width btn btn-success" *ngIf="isResend" [disabled]="forgotPasswordForm.invalid || isSend">
+              Resend reset link
+            </button>
+          </div>
+
+          <div class="text-center" *ngIf="!isSend">
+            <a routerLink="/login" class="blue-text">
+              Login
+            </a>
+          </div>
+        </form>
+      </mat-card-content>
+    </mat-card>
+  </div>
+</div>

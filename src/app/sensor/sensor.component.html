@@ -1,0 +1,20 @@
+<div class="main-app senosor-area" *ngIf="isPageLoading">
+	<div class="row sensor-topbar-area no-margin">
+		<div class="col-12 no-padding">
+			<app-sensor-topbar
+			[sensorName]="selectedSensor['name']"
+			></app-sensor-topbar>
+		</div>
+	</div>
+
+	<div class="sensor-main-area">
+		<div class="row sensor-map-area no-margin">
+			<div class="col-12 no-padding">
+				<app-sensor-detail
+				[selectedSensor]="selectedSensor"
+				[sensorKey]="sensorKey"
+				></app-sensor-detail>
+			</div>
+		</div>
+	</div>
+</div>

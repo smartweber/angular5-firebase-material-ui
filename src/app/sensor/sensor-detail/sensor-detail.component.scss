@@ -1,0 +1,173 @@
+@import 'src/theme.scss';
+
+:host {
+    .sensor-detail-wrapper {
+        font-size: 16px;
+
+        .sensor-control-container {
+            button {
+                width: 110px;
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                background: linear-gradient(to left top, rgba(255,255,255,0.1) 50%, rgba(255,255,255,1));
+            }
+        }
+
+        .btn-circle {
+            display: flex;
+            padding: 6px;
+            border-radius: 50% !important;
+            background: radial-gradient(circle at 50% 0px, #ffffff, rgba(255, 255, 255, 0) 58%);
+            .mat-icon {
+                font-size: 30px;
+            }
+        }
+
+        .status-circle {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+
+            &.on {
+                background-color: mat-color($app-green, A700);
+                border: 1px solid mat-color($app-green, 900);
+            }
+
+            &.off {
+                background-color: mat-color($app-warn, A400);
+                border: 1px solid mat-color($app-warn, 900);
+            }
+        }
+
+        .wifi-icon {
+            color: mat-color($app-primary, A400);
+        }
+
+        .signal-icon {
+            color: mat-color($app-green, 600);
+        }
+
+        button {
+            color: #fff;
+            font-size: 15px;
+
+            &.btn-default {
+                color: currentColor;
+            }
+
+            img {
+                width: 100%;
+                height: 100%;
+            }
+        }
+    
+        .new-notification {
+            position: absolute;
+            top: -10px;
+            right: -14px;
+            font-size: 12px;
+            color: mat-color($app-green);
+            z-index: 10;
+    
+            .badge {
+                background-color: mat-color($app-green);
+                color: #fff;
+                border-radius: 50%;
+            }
+        }
+    
+        .tab-container {
+            margin: 20px 0;
+    
+            .display-area {
+                border: 1px solid #ddd;
+            }
+    
+            .upload-area {
+                padding: 20px 0;
+                border: 1px solid #ddd;
+    
+                .title {
+                    font-size: 18px;
+                    font-style: italic;
+                    text-align: center;
+                    margin: 10px;
+                }
+    
+                input, button {
+                    display: block;
+                    margin: auto;
+                }
+    
+                button {
+                    min-width: 200px;
+                }
+            }
+        }
+    
+        .sensor-type {
+            font-size: 20px;
+            margin-bottom: 10px;
+        }
+    
+        .table {
+            thead {
+                tr {
+                    background-color: transparent;
+                    background-image: none;
+                }
+            }
+        }
+    
+        .table-control-area {
+            margin: 20px;
+        }
+    
+        .flex-row-center button {
+            margin: 0 5px;
+        }
+    
+        .process-title-area {
+            margin: 20px 0;
+            font-size: 18px;
+        }
+    
+        .flex1 {
+            flex: 1;
+        }
+    
+        .mat-card {
+            margin-bottom: 40px;
+        }
+    
+        .progress-description-area {
+            font-size: 16px;
+        }
+    
+        .control-rentention-visiblity {
+            margin-bottom: 16px;
+        }
+    
+        .white-bg {
+            background: white;
+        }
+    
+        .analytical-input {
+            min-height: 25px;
+            position: relative;
+        }
+    
+        .flex-none {
+            flex: none;
+        }
+    
+        .numbers {
+            width: 3rem;
+        }
+    
+        .sensor-type-handler {
+            max-width: 200px;
+        }
+    }
+}

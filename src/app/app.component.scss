@@ -1,0 +1,16 @@
+.omniscent-app {
+    display: flex;
+    flex-flow: column;
+    height: 100%;
+    min-height: 568px;
+
+    .header {
+        background-color: #fff;
+        z-index: 100;
+    }
+
+    .body {
+        display: flex;
+        flex: 1;
+    }
+}

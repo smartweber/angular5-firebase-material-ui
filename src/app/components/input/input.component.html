@@ -1,0 +1,31 @@
+<div class="input-component-area" (mouseover)="onOver()" (mouseleave)="onLeave()">
+  <div class="edit-wrapper" *ngIf="bIsEdit">
+    <mat-form-field class="full-width" *ngIf="strInputType === arrStrInputTypes[0]">
+      <input type="number" matInput [(ngModel)]="strValue">
+    </mat-form-field>
+    
+    <mat-form-field class="full-width" *ngIf="strInputType === arrStrInputTypes[1]">
+      <input matInput type="text" [(ngModel)]="strValue">
+    </mat-form-field>
+
+    <textarea class="full-width" [(ngModel)]="strValue" *ngIf="strInputType === arrStrInputTypes[2]"></textarea>
+  
+    <mat-form-field class="full-width" *ngIf="strInputType === arrStrInputTypes[4]">
+      <mat-select [(value)]="strValue">
+        <mat-option *ngFor="let option of arrStrOptions" [value]="option">{{ option }}</mat-option>
+      </mat-select>
+    </mat-form-field>
+  </div>
+
+  <div class="show-wrapper" *ngIf="!bIsEdit">
+    {{ strValue }}
+    <div class="edit-item pointer" fxLayout fxLayoutAlign="center center" *ngIf="!bIsEdit && bIsShowEditBtn">
+      <mat-icon (click)="onClickEdit()">edit</mat-icon>
+    </div>
+  </div>
+
+  <div class="action-wrapper pointer" *ngIf="bIsEdit">
+    <mat-icon color="primary" (click)="onDone()">check</mat-icon>
+  </div>
+</div>
+  

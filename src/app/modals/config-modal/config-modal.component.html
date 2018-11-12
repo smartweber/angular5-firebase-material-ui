@@ -1,0 +1,665 @@
+<div *ngIf="!bIsGetAssignedCongiguration" fxLayout="column" fxLayoutAlign="center center" class="m-3">
+  <h5 class="text-center mb-3">Loading...</h5>
+  <mat-spinner>Loading</mat-spinner>
+</div>
+
+<div class="config-modal-area" *ngIf="bIsGetAssignedCongiguration">
+  <button type="button" class="close" (click)="close()">&times;</button>
+  <h5 class="text-center">Sensor Configuration</h5>
+
+  <div class="modal-step" *ngIf="nCurrentStep === 0 && strCurrentUserType === arrStrUserTypes[0]">
+    <mat-dialog-content>
+      <div class="container-fluid">
+        <div class="row">
+          <div class="col-sm-12">
+            <mat-form-field class="full-width">
+              <mat-select placeholder="Select the Configuration Type" class="full-width" [(ngModel)]="strCurrentConfigType" [required]="true" >
+                <mat-option *ngFor="let configType of arrObjConfigTypes" [value]="configType['value']">
+                  {{ configType['label'] }}
+                </mat-option>
+              </mat-select>
+            </mat-form-field>
+          </div>
+        </div>
+      </div>
+    </mat-dialog-content>
+
+    <mat-dialog-actions class="footer">
+      <button mat-button disabled="true">Previous</button>
+      <button mat-button (click)="nextStep()">Next</button>
+    </mat-dialog-actions>
+  </div>
+
+  <div class="modal-step" *ngIf="nCurrentStep === 1">
+    <mat-dialog-content>
+      
+      <div class="container-fluid">
+        <div class="row" *ngIf="(strCurrentConfigType === arrObjConfigTypes[0]['value']);else loadSelectionEl">
+          <div class="col-sm-6"  *ngIf="isAssignMode">
+            <mat-form-field class="full-width form-group">
+              <mat-select 
+                placeholder="Select the modal type" 
+                class="full-width"
+                [(ngModel)]="nModalType"
+                [required]="true"
+                (change)="onChangeSetting()">
+                <mat-option [value]="0">Omni-1000</mat-option>
+                <mat-option [value]="1">Omni-2000</mat-option>
+              </mat-select>
+            </mat-form-field>
+
+            <mat-form-field class="full-width form-group">
+              <mat-select
+                placeholder="Select the Mode"
+                class="full-width"
+                [(ngModel)]="strCurrentDataType"
+                [required]="true"
+                (change)="onChangeSetting()">
+                <mat-option *ngFor="let type of arrStrDataTypes" [value]="type">
+                  {{ type }}
+                </mat-option>
+              </mat-select>
+            </mat-form-field>
+          </div>
+
+          <div class="col-sm-6">
+            <form [formGroup]="settingForm">
+              <mat-form-field class="full-width form-group">
+                <input matInput type="number" placeholder="Number of runs" formControlName="runNumber">
+              </mat-form-field>
+    
+              <mat-form-field class="full-width form-group">
+                <input matInput type="number" placeholder="Sampling time (hrs)" formControlName="samplingTime">
+              </mat-form-field>
+    
+              <mat-form-field class="full-width form-group">
+                <input matInput type="number" placeholder="Idle time between each run (s)" formControlName="idleTime">
+              </mat-form-field>
+            </form>
+          </div>
+
+          <div class="col-sm-12 my-2" *ngIf="isAssignMode">
+            <h5>Select complete configuration file</h5>
+          </div>
+        </div>
+  
+        <ng-template #loadSelectionEl>
+          <div class="row">
+            <div class="col-sm-12">
+              <mat-form-field class="full-width">
+                <mat-select placeholder="Select the Mode" class="full-width text-center" [(ngModel)]="strCurrentSetupType" [required]="true" (change)="onChangeConfigType()">
+                  <mat-option [value]="arrStrSetupTypes[0]">Load configuration file from the Cloud</mat-option>
+                  <mat-option [value]="arrStrSetupTypes[1]">Load configuration file from local</mat-option>
+                  <mat-option [value]="arrStrSetupTypes[2]">Create new configuration file</mat-option>
+                </mat-select>
+              </mat-form-field>
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="col-6">
+              <mat-form-field class="full-width form-group">
+                <mat-select 
+                  placeholder="Select the modal type" 
+                  class="full-width"
+                  [(ngModel)]="nModalType"
+                  (change)="onChangeSetting()"
+                  [required]="true">
+                  <mat-option [value]="0">Omni-1000</mat-option>
+                  <mat-option [value]="1">Omni-2000</mat-option>
+                </mat-select>
+              </mat-form-field>
+            </div>
+
+            <div class="col-6">
+              <mat-form-field class="full-width form-group">
+                <mat-select
+                  placeholder="Select the Mode"
+                  class="full-width"
+                  [(ngModel)]="strCurrentDataType"
+                  (change)="onChangeSetting()"
+                  [required]="true">
+                  <mat-option *ngFor="let type of arrStrDataTypes" [value]="type">
+                    {{ type }}
+                  </mat-option>
+                </mat-select>
+              </mat-form-field>
+            </div>
+          </div>
+        </ng-template>
+
+        <div class="row" *ngIf="isAssignMode || (strCurrentConfigType === arrObjConfigTypes[1]['value'])">
+          <div class="col-sm-12" *ngIf="bIsGetConfigurations">
+            <div class="load-area">
+              <mat-spinner></mat-spinner>
+            </div>
+          </div>
+
+          <div class="col-sm-12" *ngIf="!bIsGetConfigurations">
+            <div *ngIf="strCurrentSetupType === arrStrSetupTypes[0]">
+              <div class="load-area" *ngIf="!bIsGetCloudConfigs && bIsTryToGetCC">
+                <mat-spinner></mat-spinner>
+              </div>
+    
+              <div class="alert alert-danger full-width" *ngIf="bIsTryToGetCC && bIsGetCloudConfigs && arrConfigs.length === 0">
+                There is no configuration data from the Cloud.
+              </div>
+    
+              <div class="config-table-area" *ngIf="bIsGetCloudConfigs && arrConfigs.length > 0">
+                <div class="my-3 filter-container">
+                  <mat-form-field class="full-width">
+                    <input type='text' [(ngModel)]='strFilerText' matInput placeholder='Search...' (keyup)='onUpdateFilter($event)'>
+                  </mat-form-field>
+                </div>
+
+                <mat-table #table [dataSource]="dataSource">
+                  <!-- Position Column -->
+                  <ng-container matColumnDef="position">
+                    <mat-header-cell *matHeaderCellDef style="flex: 1"> No. </mat-header-cell>
+                    <mat-cell *matCellDef="let element" style="flex: 1"> {{ element?.position }} </mat-cell>
+                  </ng-container>
+              
+                  <!-- Name Column -->
+                  <ng-container matColumnDef="name">
+                    <mat-header-cell *matHeaderCellDef style="flex: 3"> File Name </mat-header-cell>
+                    <mat-cell *matCellDef="let element" style="flex: 3">
+                      {{ element?.name }}
+                    </mat-cell>
+                  </ng-container>
+              
+                  <!-- Upload Time Column -->
+                  <ng-container matColumnDef="time">
+                    <mat-header-cell *matHeaderCellDef style="flex: 2"> Upload Time </mat-header-cell>
+                    <mat-cell *matCellDef="let element" style="flex: 2"> {{ element?.time }} </mat-cell>
+                  </ng-container>
+              
+                  <!-- Actions Column -->
+                  <ng-container matColumnDef="actions">
+                    <mat-header-cell *matHeaderCellDef style="flex: 2"> Actions </mat-header-cell>
+                    <mat-cell *matCellDef="let element" style="flex: 2">
+                      <div class="multi-action-btn-wrap" *ngIf="strSelectedFileKey !== element['key']">
+                        <mat-icon class="pointer" color="primary" (click)="onLoadConfig(element)" matTooltip="Load">play_arrow</mat-icon>
+
+                        <mat-icon
+                          color="warn"
+                          class="pointer"
+                          matTooltip="Delete"
+                          (click)="onDeleteConfig(element['path'], element['key'])"
+                        >delete_outline</mat-icon>
+
+                        <mat-icon class="pointer green-text" (click)="onDownloadJSONFile(element['url'], element['name'])" matTooltip="Download">cloud_download</mat-icon>
+                      </div>
+
+                      <div *ngIf="strSelectedFileKey === element['key']" class="flex-center">
+                        <mat-spinner class="small-spinner" *ngIf="bIsLoadConfiguration;else submitStepEl"></mat-spinner>
+
+                        <ng-template #submitStepEl>
+                          <mat-icon
+                            class="pointer"
+                            color="primary"
+                            matTooltip="Submit"
+                            (click)="submitStep()"
+                          >launch</mat-icon>
+                        </ng-template>
+                      </div>
+                    </mat-cell>
+                  </ng-container>
+              
+                  <mat-header-row *matHeaderRowDef="arrStrDisplayedColumns"></mat-header-row>
+                  <mat-row *matRowDef="let row; columns: arrStrDisplayedColumns;"></mat-row>
+                </mat-table>
+
+                <mat-paginator #paginator
+                  [pageSize]="10"
+                  [pageSizeOptions]="[5, 10, 20]">
+                </mat-paginator>
+              </div>
+            </div>
+  
+            <div *ngIf="strCurrentSetupType === arrStrSetupTypes[1]">
+              <label class="control-label" for="address">Pick a JSON File</label>
+              <input type="file" class="form-control" id="logo_file_upload" name="logo" accept=".json" (change)="onImport($event)">
+            </div>
+          </div>
+        </div>
+  
+        <div class="row" *ngIf="bIsConfigMessage">
+          <div class="col-sm-12">
+            <div *ngIf="bIsCorrectSimpleConfiguration">
+              <div class="alert alert-success" role="alert" *ngIf="bIsAlertSuccess">
+                <strong>Ready</strong> to go!
+              </div>
+      
+              <div class="alert alert-danger" role="alert" *ngIf="bIsAlertError">
+                <strong>Uncomfortable</strong> to go!
+              </div>
+            </div>
+
+            <div *ngIf="!bIsCorrectSimpleConfiguration" class="alert alert-danger">
+              {{ strConfigurationAlert }}
+            </div>
+          </div>
+        </div>
+      </div>
+      
+    </mat-dialog-content>
+
+    <mat-dialog-actions class="footer">
+      <div *ngIf="isAssignMode || strCurrentUserType === arrStrUserTypes[1]"></div>
+      <button mat-button (click)="previousStep()" *ngIf="!isAssignMode && strCurrentUserType === arrStrUserTypes[0]">Previous</button>
+      <button mat-button
+        *ngIf="isAssignMode || (!isAssignMode && strCurrentConfigType === arrObjConfigTypes[1]['value'])"
+        (click)="submitStep()"
+        [disabled]="
+        !bIsCorrectSimpleConfiguration ||
+        !settingForm.valid ||
+        !strSelectedFileKey ||
+        !bIsConfigMessage ||
+        ((strCurrentConfigType === arrObjConfigTypes[1]['value']) && (strCurrentSetupType !== arrStrSetupTypes[0]))"
+      >Submit</button>
+      <button mat-button
+        *ngIf="!isAssignMode && strCurrentConfigType === arrObjConfigTypes[0]['value']"
+        (click)="submitStep()"
+        [disabled]="settingForm.invalid || !objConfigData"
+      >Submit</button>
+      <button mat-button
+        *ngIf="!isAssignMode && strCurrentConfigType === arrObjConfigTypes[1]['value']"
+        (click)="nextStep()"
+        [disabled]="
+        !bIsCorrectSimpleConfiguration ||
+        !settingForm.valid ||
+        (bIsLoadConfiguration && strCurrentSetupType === arrStrSetupTypes[0]) ||
+        ((strCurrentConfigType === arrObjConfigTypes[0]['value']) && !bIsImportFile) ||
+        ((strCurrentConfigType === arrObjConfigTypes[1]['value']) && (
+          (strCurrentSetupType !== arrStrSetupTypes[2]) && !bIsImportFile
+        ))"
+      >Next</button>
+    </mat-dialog-actions>
+  </div>
+
+  <div class="modal-step" *ngIf="nCurrentStep === (nMainStepNumber - 1)">
+    <mat-dialog-content>
+      <form [formGroup]="numberForm" class="container-fluid">
+        <div class="row">
+          <div class="col-6 form-group">
+            <mat-form-field class="full-width">
+              <input matInput type="number" placeholder="Number of Steps" formControlName="stepNumber" min="1" max="100">
+            </mat-form-field>
+          </div>
+
+          <div class="col-6 form-group">
+            <mat-form-field class="full-width">
+              <input matInput type="number" placeholder="Number of Runs" formControlName="runNumber" min="1" max="100">
+            </mat-form-field>
+          </div>
+        </div>
+      </form>
+    </mat-dialog-content>
+
+    <mat-dialog-actions class="footer">
+      <button mat-button (click)="previousStep()">Previous</button>
+      <button mat-button (click)="nextStep()" [disabled]="!numberForm.valid">Next</button>
+    </mat-dialog-actions>
+  </div>
+
+  <div class="modal-step"
+    *ngIf = "(nCurrentStep >= nMainStepNumber) &&
+      (nCurrentStep < (nStepNumber + nMainStepNumber))"
+  >
+    <div class="sub-title">
+      Step-{{ nCurrentStep - nMainStepNumber + 1 }}
+    </div>
+
+    <mat-dialog-content>
+      <div class="container-fluid">
+        <div class="row">
+          <div class="col-sm-6 form-group">
+            <mat-form-field class="full-width">
+              <mat-select placeholder="Step Action" class="full-width" [(ngModel)]="strCurrentStepAction" [required]="true" [disabled]="nCurrentStep === nMainStepNumber">
+                <mat-option *ngFor="let action of arrStrStepActions" [value]="action" 
+                [disabled]="(action === arrStrStepActions[2] && ((arrObjChemicalCRs.length === 0 && arrObjChemicalCDs.length === 0 && arrObjChemicalPDs.length === 0) || arrObjUploadOptions.length == 0)) ||
+                (action === arrStrStepActions[3] && (arrObjChemicalCRs.length === 0 || arrObjChemicalCDs.length === 0 || arrObjChemicalPDs.length === 0))">
+                  {{ action }}
+                </mat-option>
+              </mat-select>
+            </mat-form-field>
+          </div>
+        </div>
+      </div>
+
+      <form [formGroup]="configForm" *ngIf="strCurrentStepAction === arrStrStepActions[0]">
+        <div class="container-fluid">
+          <div class="row">
+            <div class="col-sm-12 table-responsive form-group">
+              <table class="table table-bordered">
+                <thead>
+                  <tr>
+                    <th>Params</th>
+                    <th>T_idle</th>
+                    <th>T_target</th>
+                    <th>t1</th>
+                    <th>t2</th>
+                    <th>t3</th>
+                  </tr>
+                </thead>
+
+                <tbody>
+                  <tr *ngFor="let row of objTKeyTable['rows'];let rowIndex=index;">
+                    <td>
+                      <div *ngIf="strCurrentDataType === arrStrDataTypes[1]">
+                        {{ row }}
+                      </div>
+                      
+                      <div *ngIf="strCurrentDataType !== arrStrDataTypes[1]">
+                        <div *ngIf="rowIndex === 0">
+                          KPA
+                        </div>
+                        <div *ngIf="rowIndex === 1">
+                          KPB
+                        </div>
+                        <div *ngIf="rowIndex > 1">
+                          {{ row }}
+                        </div>
+                      </div>
+                    </td>
+                    <td *ngFor="let header of objTKeyTable['headers']">
+                      <mat-form-field>
+                        <input matInput type="number" class="text-center" [formControlName]="row.toLowerCase() + header.charAt(0).toUpperCase() +  header.slice(1)" required>
+                        <mat-error *ngIf="objConfigFormErrors[row.toLowerCase() + header.charAt(0).toUpperCase() +  header.slice(1)]">
+                          {{ objConfigFormErrors[row.toLowerCase() + header.charAt(0).toUpperCase() +  header.slice(1)] }}
+                        </mat-error>
+                      </mat-form-field>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="col-sm-6">
+              <div class="form-group">
+                  <mat-form-field class="full-width">
+                    <input type="number" matInput placeholder="Total Runtime(s)" formControlName="totalRuntime" name="totalRuntime" required (ngModelChange)="onChangeTotalRunTime($event)">
+                  </mat-form-field>
+              </div>
+            </div>
+
+            <div class="col-sm-6">
+              <div class="pull-left">
+                <section class="full-width">
+                  <mat-checkbox formControlName="saveData" name="saveData">Save Data</mat-checkbox>
+                </section>
+                
+              </div>			
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="col-sm-6">
+              <div class="form-group mat-select-wrapper">
+                <mat-form-field class="full-width">
+                  <mat-select placeholder="Step Category" class="full-width" formControlName="stepType" name="stepType" [required]="true" >
+                    <mat-option *ngFor="let type of arrStrStepTypes" [value]="type">
+                        {{ type }}
+                    </mat-option>
+                  </mat-select>
+                </mat-form-field>
+              </div>		
+            </div>
+
+            <div class="col-sm-6">
+              <div class="pull-left mat-select-wrapper">
+                <mat-checkbox formControlName="ampEnable" name="ampEnable">Flow Sensor Enable</mat-checkbox>
+              </div>			
+            </div>
+          </div>
+
+          <div class="row" *ngIf="nModalType === 1">
+            <div class="col-sm-6">
+              <mat-form-field class="full-width">
+                <input type="number" matInput placeholder="Target board temperature (°C)" formControlName="targetBoardTemp">
+              </mat-form-field>
+            </div>
+
+            <div class="col-sm-6">
+              <mat-form-field class="full-width">
+                <mat-select placeholder="Board temperature control" class="full-width" formControlName="boardTempControl">
+                  <mat-option [value]="1">On</mat-option>
+                  <mat-option [value]="0">Off</mat-option>
+                </mat-select>
+              </mat-form-field>
+            </div>
+
+            <div class="col-sm-6">
+              <mat-form-field class="full-width">
+                <mat-select placeholder="Fan control" class="full-width" formControlName="fanControl" [(ngModel)]="configForm['value']['boardTempControl']===1?1:configForm['value']['fanControl']" [disabled]="configForm['value']['boardTempControl'] === 1">
+                  <mat-option [value]="1">On</mat-option>
+                  <mat-option [value]="0">Off</mat-option>
+                </mat-select>
+              </mat-form-field>
+            </div>
+          </div>
+        </div>
+      </form>
+
+      <div  class="container-fluid data-processing-step" *ngIf="strCurrentStepAction === arrStrStepActions[1]">
+        <div class="row form-group">
+          <div
+            class="mat-select-wrapper"
+            [ngClass]="{
+              'col-sm-4': nModalType === 0,
+              'col-sm-6': nModalType === 1
+            }"
+          >
+            <mat-form-field class="full-width">
+              <mat-select placeholder="Select the algorithm" class="full-width" [(ngModel)]="strCurrentAlgorithm" [required]="true" >
+                <mat-option *ngFor="let algorithm of arrStrAlgorithm" [value]="algorithm">
+                  {{ algorithm }}
+                </mat-option>
+              </mat-select>
+            </mat-form-field>
+          </div>
+
+          <div
+            class="mat-select-wrapper"
+            [ngClass]="{
+              'col-sm-4': nModalType === 0,
+              'col-sm-6': nModalType === 1
+            }"
+          >
+            <mat-form-field class="full-width">
+              <mat-select placeholder="Select raw chromatogram" class="full-width" [(ngModel)]="nCurrentChroma" [required]="true" >
+                <mat-option *ngFor="let item of arrObjChromatograms" [value]="item['value']">
+                  {{ item['label'] }}
+                </mat-option>
+              </mat-select>
+            </mat-form-field>
+          </div>
+
+          <div
+            class="mat-select-wrapper"
+            *ngIf="nModalType === 0"
+            [ngClass]="{
+              'col-sm-4': nModalType === 0,
+              'col-sm-6': nModalType === 1
+            }"
+          >
+            <mat-form-field class="full-width">
+              <mat-select
+                placeholder="Select flow calibration data"
+                [(ngModel)]="nCurrentCalib"
+                [required]="true"
+              >
+                <mat-option *ngFor="let item of arrObjCalibrations" [value]="item['value']">
+                  {{ item['label'] }}
+                </mat-option>
+              </mat-select>
+            </mat-form-field>
+          </div>
+        </div>
+      </div>
+
+      <div  class="container-fluid data-processing-step" *ngIf="strCurrentStepAction === arrStrStepActions[2]">
+        <div class="row" *ngFor="let data of arrObjUploadData">
+          <div class="col-sm-12 mat-select-wrapper form-group">
+            <mat-form-field class="full-width">
+              <mat-select placeholder="Select data in which step to be uploaded" class="full-width" [(ngModel)]="data['step']" [required]="true" >
+                <mat-option *ngFor="let item of arrObjUploadOptions" [value]="item['value']">
+                  {{ item['label'] }}
+                </mat-option>
+              </mat-select>
+            </mat-form-field>
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="col-sm-12 form-group">
+            Add data to be uploaded
+            <button mat-icon-button color="accent" (click)="onAddUploadData()">
+              <mat-icon class="mat-24">add</mat-icon>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div  class="container-fluid data-processing-step" *ngIf="strCurrentStepAction === arrStrStepActions[3]">
+        <div class="row">
+          <div class="col-sm-6 mat-select-wrapper form-group">
+            <mat-form-field class="full-width">
+              <mat-select placeholder="Select raw chromatogram" class="full-width" [(ngModel)]="nChemicalCR" [required]="true" >
+                <mat-option *ngFor="let item of arrObjChemicalCRs" [value]="item['value']">
+                  {{ item['label'] }}
+                </mat-option>
+              </mat-select>
+            </mat-form-field>
+          </div>
+
+          <div class="col-sm-6 mat-select-wrapper form-group" *ngIf="nModalType === 0">
+            <mat-form-field class="full-width">
+              <mat-select
+                class="full-width"
+                placeholder="Select flow calibration data"
+                [(ngModel)]="nChemicalCD"
+                [required]="true"
+              >
+                <mat-option *ngFor="let item of arrObjChemicalCDs" [value]="item['value']">
+                  {{ item['label'] }}
+                </mat-option>
+              </mat-select>
+            </mat-form-field>
+          </div>
+
+          <div class="col-sm-6 mat-select-wrapper form-group">
+            <mat-form-field class="full-width">
+              <mat-select placeholder="Select processed data" class="full-width" [(ngModel)]="nChmicalPD" [required]="true" >
+                <mat-option *ngFor="let item of arrObjChemicalPDs" [value]="item['value']">
+                  {{ item['label'] }}
+                </mat-option>
+              </mat-select>
+            </mat-form-field>
+          </div>
+
+          <div class="col-sm-6 form-group mat-select-wrapper" *ngIf="nModalType === 0">
+            <mat-checkbox [(ngModel)]="bIsChemicalSaveData" name="saveData">Flow sensor enabled</mat-checkbox>
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="col-sm-6 form-group mat-select-wrapper">
+            <mat-form-field class="full-width">
+              <input type="number" matInput placeholder="Separation start time in the Separation step (s)" [(ngModel)]="nChemicalStartTime">
+            </mat-form-field>	
+          </div>
+
+          <div class="col-sm-6 form-group mat-select-wrapper">
+            <mat-form-field class="full-width">
+              <input type="number" matInput placeholder="Total sampling time (hrs)" [(ngModel)]="nChemicalTotal">
+            </mat-form-field>	
+          </div>
+        </div>
+      </div>
+    </mat-dialog-content>
+
+    <div class="alert alert-danger" *ngIf="configForm && configForm.invalid">
+      Invalid form
+    </div>
+
+    <div class="alert alert-danger" *ngIf="bIsOverTotalRunTime && strCurrentStepAction === arrStrStepActions[0]">
+      Total RunTime should be bigger than the sum of t1, t2 and t3.
+    </div>	
+
+    <mat-dialog-actions class="footer">
+      <button mat-button (click)="previousStep()">Previous</button>
+      <button class="btn btn-primary" mat-button (click)="onAddStep()">Add</button>
+      <button 
+        class="btn btn-warning"
+        mat-button
+        (click)="onDeleteStep()"
+        [disabled]="(nCurrentStep === nMainStepNumber) &&
+          !(
+            (
+              arrParams[1] && arrParams[1]['stepAction'] === arrStrStepActions[0]
+            ) ||
+            (
+              !arrParams[1] && bIsMultiMRStep
+            )
+          )">
+        Delete
+      </button>
+      <button mat-button (click)="nextStep()" [disabled]="(configForm && configForm.invalid) || 
+      (bIsOverTotalRunTime && strCurrentStepAction === arrStrStepActions[0])">Next</button>
+    </mat-dialog-actions>
+  </div>
+
+  <div class="modal-step" *ngIf="nCurrentStep === (nMainStepNumber + nStepNumber)">
+    <div class="alert alert-info text-center mt-3" role="alert">
+      Thanks for setting the parameters through all steps!
+    </div>
+
+    <mat-dialog-content>
+      <div class="container-fluid" *ngIf="!bIsSaveConfiguration">
+        <div class="row">
+            <div class="col-sm-6 form-group">
+            <mat-form-field class="full-width">
+              <input matInput placeholder="File Name" [(ngModel)]="strConfigFileName">
+            </mat-form-field>	
+          </div>
+        </div>
+  
+        <div class="row">
+          <div class="col-sm-6 form-group">
+            <button mat-raised-button class="full-width" color="primary" (click)="downloadParam()">Download Configuration To Local</button>
+          </div>
+  
+          <div class="col-sm-6 form-group">
+            <button mat-raised-button class="full-width" color="primary" (click)="uploadParamsToCloud()" [disabled]="bIsUploadConfigurationToCloud">Upload Configuration To Cloud</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="alert-area" *ngIf="bIsAlert && !bIsSaveConfiguration">
+        <div class="alert alert-success" role="alert" *ngIf="nAlertType === 0">
+          <strong>Well done!</strong> File upload is successful.
+        </div>
+  
+        <div class="alert alert-danger" role="alert" *ngIf="nAlertType === 1">
+          <strong>Oh snap!</strong> File upload is failed.
+        </div>
+  
+        <div class="alert alert-danger" role="alert" *ngIf="nAlertType === 2">
+          You should input the file name.
+        </div>
+      </div>
+
+      <div class="load-area" *ngIf="bIsSaveConfiguration">
+        <mat-spinner></mat-spinner>
+      </div>
+    </mat-dialog-content>
+
+    <mat-dialog-actions class="footer">
+      <button mat-button (click)="previousStep()">Previous</button>
+      <button mat-button (click)="submitParams()">Submit</button>
+    </mat-dialog-actions>
+  </div>
+</div>

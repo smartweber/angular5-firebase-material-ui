@@ -1,0 +1,204 @@
+<div class="st-category-wrapper">
+	<div class="table-type-form container-fluid" *ngIf="isSelectType && isCreatable">
+		<div class="row">
+			<div class="col-sm-12">
+				<fieldset>
+					<legend>Please select the table type</legend>
+
+					<mat-radio-group class="inline-radio-area" [(ngModel)]="tableType">
+						<mat-radio-button color="primary" [value]="tableTypes[1]" class="full-width pr-3">
+							<div class="text-center mb-3 sub-title">Table based on headers and rows</div>
+							<img class="full-width" src="https://firebasestorage.googleapis.com/v0/b/omniscent-2889e.appspot.com/o/assets%2Fsensor_type_temp1.png?alt=media&token=f48f0a11-0b91-4631-ab7b-8d5c523d5a79">
+						</mat-radio-button>
+
+						<mat-radio-button color="primary" [value]="tableTypes[0]" class="full-width pr-3">
+							<div class="text-center mb-3 sub-title">Table based on headers</div>
+							<img class="full-width" src="https://firebasestorage.googleapis.com/v0/b/omniscent-2889e.appspot.com/o/assets%2Fsensor_type_temp2.png?alt=media&token=82a8cf6d-bc0f-40b8-a505-b939ef69d4e3">
+						</mat-radio-button>
+					</mat-radio-group>
+				</fieldset>
+
+				<div class="action-button-area">
+					<button mat-raised-button width="100" class="btn btn-primary" (click)="updateTableType()">OK</button>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<div class="params-form container-fluid" *ngIf="!isSelectType">
+		<div class="row">
+			<div class="col-sm-6"><!--displaying params-->
+				<div class="header-row-type" *ngIf="isHeaderRowType"><!-- header-row area -->
+					<div class="header-fields">
+						<h3 class="sub-title no-margin">Headers</h3>
+
+						<div class="body">
+							<mat-list class="omni-list-group">
+								<mat-list-item class="omni-list-item" *ngFor="let row of sensorType.heads;let i = index;" (click)="selectHeadSensorType(i)" [ngClass]="{'list-active': nSelectedHeadParamId === i}">
+									<div fxLayout fxLayoutAlign="space-between center" fxFlexFill>
+										<div fxLayout fxLayoutAlign>
+											<div class="title">{{ row.name }}<span class="success-color" *ngIf="row.primaryKey">(primary key)</span></div>
+										</div>
+
+										<div *ngIf="isCreatable" fxLayout fxLayoutAlign="center center">
+											<div class="edit-item" fxLayout fxLayoutAlign="center center">
+												<mat-icon (click)="editHeaderParams(i)">edit</mat-icon>
+											</div>
+											<div class="delete-item" fxLayout fxLayoutAlign="center center">
+												<mat-icon (click)="deleteHeaderParams(i)">delete_outline</mat-icon>
+											</div>
+										</div>
+									</div>
+								</mat-list-item>
+							</mat-list>
+
+							<div class="action-button-area" *ngIf="isCreatable">
+								<button mat-mini-fab color class="btn-icon" (click)="showHeaderParam()">
+									<img src="assets/images/add_color.png" />
+								</button>
+							</div>
+						</div>
+					</div>
+
+					<div class="row-fields">
+						<h3 class="sub-title no-margin">Row Names</h3>
+
+						<div class="body">
+							<mat-list class="omni-list-group">
+								<mat-list-item class="omni-list-item" *ngFor="let row of sensorType.rows;let i = index;" (click)="selectRowSensorType(i)" [ngClass]="{'list-active': nSelectedRowParamId === i}">
+									<div fxLayout fxLayoutAlign="space-between center" fxFlexFill>
+										<div fxLayout fxLayoutAlign>
+											<div class="title">{{row.name}}:</div>
+											<div class="grey-text ml-1" [ngClass]="{capitalize: row.valueType !== PARAM_TYPE[0]}">{{row.detail}}</div>
+										</div>
+
+										<div *ngIf="isCreatable" fxLayout fxLayoutAlign="center center">
+											<div class="edit-item" fxLayout fxLayoutAlign="center center">
+												<mat-icon (click)="editRowParams(i)">edit</mat-icon>
+											</div>
+											<div class="delete-item" fxLayout fxLayoutAlign="center center">
+												<mat-icon (click)="deleteRowParams(i)">delete_outline</mat-icon>
+											</div>
+										</div>
+									</div>
+								</mat-list-item>
+							</mat-list>
+
+							<div class="action-button-area" *ngIf="isCreatable">
+								<button mat-mini-fab color class="btn-icon" (click)="showRowParam()">
+									<img src="assets/images/add_color.png" />
+								</button>
+							</div>
+						</div>
+					</div>
+				</div><!-- header-row area -->
+
+				<div class="header-type" *ngIf="!isHeaderRowType"><!-- header area -->
+					<div class="header-fields">
+						<h3 class="sub-title no-margin">Headers</h3>
+
+						<div class="body">
+							<mat-list class="omni-list-group">
+								<mat-list-item class="omni-list-item" *ngFor="let row of sensorType.heads;let i = index;" (click)="selectHeadSensorType(i)" [ngClass]="{active: nSelectedHeadParamId === i}">
+									<div fxLayout fxLayoutAlign="space-between center" fxFlexFill>
+										<div fxLayout fxLayoutAlign>
+											<div class="title">{{ row.name }}<span class="success-color" *ngIf="row.primaryKey">(primary key)</span></div>
+										</div>
+
+										<div *ngIf="isCreatable" fxLayout fxLayoutAlign="center center">
+											<div class="edit-item" fxLayout fxLayoutAlign="center center">
+												<mat-icon (click)="editHeaderParams(i)">edit</mat-icon>
+											</div>
+											<div class="delete-item" fxLayout fxLayoutAlign="center center">
+												<mat-icon (click)="deleteHeaderParams(i)">delete_outline</mat-icon>
+											</div>
+										</div>
+									</div>
+								</mat-list-item>
+							</mat-list>
+
+							<div class="action-button-area" *ngIf="isCreatable">
+								<button mat-mini-fab color class="btn-icon" (click)="showHeaderParam()">
+									<img src="assets/images/add_color.png" />
+								</button>
+							</div>
+						</div>
+					</div>
+				</div><!-- header area -->
+				
+				<div class="my-3">
+					<a class="blue-text omni-link" (click)="gotoSensorInfo($event)">Sensor Type Name: {{sensorTypeName}}</a>
+				</div>
+			</div><!--displaying params-->
+
+			<div class="form-area col-sm-6" *ngIf="isCreatable"><!--form area-->
+				<div class="create-param-form" *ngIf="isCreateNewHeader">
+					<form [formGroup]="headerForm" (ngSubmit)="submitHeaderParam()" class="header-form">
+						<h3 class="sub-title" *ngIf="isCreateStatus">Create a Header Parameter Form</h3>
+						<h3 class="sub-title" *ngIf="!isCreateStatus">Update a Header Parameter Form</h3>
+
+						<div class="form-group">
+							<mat-form-field class="full-width">
+								<input type="text" matInput placeholder="Name" formControlName="name" name="name" required>
+							</mat-form-field>
+							<div *ngIf="formErrors.name" class="alert alert-danger">
+								{{formErrors.name}}
+							</div>
+						</div>
+
+						<div class="row">
+							<div class="col-12">
+								<button mat-raised-button class="btn btn-success" *ngIf="isCreateStatus">Create</button>
+								<button mat-raised-button class="btn btn-success" *ngIf="!isCreateStatus">Update</button>
+								<a mat-raised-button class="btn btn-default" (click)="closeHeaderForm()">Cancel</a>
+							</div>
+						</div>
+					</form>
+				</div>
+
+				<div class="create-param-form" *ngIf="isCreateNewRow"><!--create param form for row-->
+					<form [formGroup]="rowForm" (ngSubmit)="submitRowParam()" class="row-form">
+						<h3 class="sub-title" *ngIf="isCreateStatus">Create a Row Parameter Form</h3>
+						<h3 class="sub-title" *ngIf="!isCreateStatus">Update a Row Parameter Form</h3>
+
+						<div class="form-group">
+							<mat-form-field class="full-width">
+								<input type="text" matInput placeholder="Param Name" formControlName="name">
+							</mat-form-field>
+							<div *ngIf="formErrors.name" class="alert alert-danger">
+								{{formErrors.name}}
+							</div>
+						</div>
+
+						<div class="form-group" *ngIf="typeStatus === PARAM_TYPE[0]">
+							<div class="">
+								<mat-form-field class="full-width">
+							    	<input type="text" matInput placeholder="Param Unit" formControlName="unit">
+							    </mat-form-field>
+								<p style="font-size: 12px;">Please input units with "," for distinguish them.</p>
+							</div>
+						</div>
+
+						<div class="form-group">
+							<mat-form-field class="full-width">
+								<mat-select placeholder="Parameter Type" class="full-width" formControlName="type" name="type" [required]="true" (ngModelChange)="onTypeChange($event)">
+									<mat-option *ngFor="let type of PARAM_TYPE" [value]="type">
+										{{ type }}
+									</mat-option>
+								</mat-select>
+							</mat-form-field>
+						</div>
+
+						<div class="row">
+							<div class="col-12">
+								<button mat-raised-button class="btn btn-success" *ngIf="isCreateStatus">Create</button>
+								<button mat-raised-button class="btn btn-success" *ngIf="!isCreateStatus">Update</button>
+								<a mat-raised-button class="btn btn-default" (click)="closeRowForm()">Cancel</a>
+							</div>
+						</div>
+					</form>
+				</div><!--create param form-->
+			</div><!--form area-->
+		</div>
+	</div>
+</div>

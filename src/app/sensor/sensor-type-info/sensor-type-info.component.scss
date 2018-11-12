@@ -1,0 +1,24 @@
+:host {
+    width: 100%;
+    height: 100%;
+
+    .sensor-type-info-wrapper {
+        display: flex;
+        flex-flow: column;
+        
+        .action-wrapper {
+            align-items: stretch;
+            justify-content: flex-end;
+        }
+    
+        .display-wrapper {
+            display: flex;
+            align-items: stretch;
+            overflow-y: auto;
+            height: 100%;
+        }
+    }
+}
+.display-hide {
+    display: none;
+}

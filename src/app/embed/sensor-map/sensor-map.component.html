@@ -1,0 +1,18 @@
+<div class="embed-sensor-map-wrap full-height" *ngIf="isPageLoad;else waitComponent">
+  <div *ngIf="!isAuthorize;else mapComponent">
+    {{ errorMessage }}
+  </div>
+
+  <ng-template #mapComponent>
+    <app-customer-map
+    [customers] = "customers"
+    [zones] = "zones"
+    ></app-customer-map>
+  </ng-template>
+</div>
+
+<ng-template #waitComponent>
+  <div class="loading-container" fxLayout fxLayoutAlign="center center">
+    Loading..
+  </div>
+</ng-template>

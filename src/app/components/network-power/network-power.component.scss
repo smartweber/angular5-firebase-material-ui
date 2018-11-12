@@ -1,0 +1,18 @@
+@import 'src/theme.scss';
+
+:host {
+  .network-power-component {
+    .wrapper {
+      width: 135px;
+      .power-item {
+        border: 1px solid;
+        padding: 5px 10px;
+        background-color: #fff;
+
+        &.active {
+          background-color: mat-color($app-green, 300);
+        }
+      }
+    }
+  }
+}

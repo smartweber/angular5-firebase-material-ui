@@ -1,0 +1,15 @@
+<div class="confirm-content">
+  <h2 mat-dialog-title fxLayout fxLayoutAlign="start center">
+    <mat-icon color="warn" class="mr-1">warning</mat-icon>
+    {{ strTitle }}
+  </h2>
+
+  <mat-dialog-content>
+    <div class="mb-3" [innerHTML]="strDescription"></div>
+  </mat-dialog-content>
+
+  <mat-dialog-actions align="end">
+    <button mat-stroked-button color="primary" class="mr-1" (click)="onAgree()">Yes</button>
+    <button mat-stroked-button color="warn" (click)="onClose()">No</button>
+  </mat-dialog-actions>
+</div>

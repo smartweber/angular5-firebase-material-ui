@@ -1,0 +1,145 @@
+<div class="main-app zone-detail-wrapper" *ngIf="bIsPageLoading">
+	<mat-card>
+		<mat-card-title>
+			<div fxLayout fxLayoutAlign="start center">
+				<button mat-icon-button color="primary" class="mr-1" (click)="onBack()">
+					<mat-icon>keyboard_return</mat-icon>
+				</button>
+				Zone Details
+			</div>
+		</mat-card-title>
+
+		<mat-card-content *ngIf="!currentZone">
+			<div class="alert alert-danger">
+				There is no zone details
+			</div>	
+		</mat-card-content>
+
+		<mat-card-content *ngIf="currentZone">
+			<table class="table table-bordered">
+				<thead>
+					<tr class="black-muted-bg">
+						<th>Title</th>
+						<th>Value</th>
+						<th *ngIf="bIsEditable">Action</th>
+					</tr>
+				</thead>
+
+				<tbody>
+					<tr><!-- name -->
+						<td>Name</td>
+						<td>
+							<div *ngIf="status!==1">
+								{{ currentZone.name }}
+							</div>
+
+							<div *ngIf="status===1">
+								<mat-form-field class="full-width">
+									<input type="text" matInput [(ngModel)]="paramValue">
+								</mat-form-field>
+								<div *ngIf="error" class="alert alert-danger">
+									{{error}}
+								</div>	
+							</div>
+						</td>
+
+						<td *ngIf="bIsEditable">
+							<mat-icon class="green-text pointer" (click)="editValue(1, currentZone.name)" *ngIf="status!==1">edit</mat-icon>
+							<mat-icon class="pointer" color="primary" (click)="update()" *ngIf="status===1">check</mat-icon>
+							<mat-icon class="pointer" color="warn" (click)="cancel()" *ngIf="status===1">close</mat-icon>
+						</td>
+					</tr><!-- name -->
+
+					<tr><!-- description -->
+						<td>Description</td>
+						<td>
+							<div *ngIf="status!==2">
+								{{ currentZone.description }}
+							</div>
+
+							<div *ngIf="status===2">
+								<textarea class="form-control" [(ngModel)]="paramValue"></textarea>
+								<div *ngIf="error" class="alert alert-danger">
+									{{error}}
+								</div>	
+							</div>
+						</td>
+						<td *ngIf="bIsEditable">
+							<mat-icon class="green-text pointer" (click)="editValue(2, currentZone.description)" *ngIf="status!==2">edit</mat-icon>
+							<mat-icon class="pointer" color="primary" (click)="update()" *ngIf="status===2">check</mat-icon>
+							<mat-icon class="pointer" color="warn" (click)="cancel()" *ngIf="status===2">close</mat-icon>
+						</td>
+					</tr><!-- description -->
+
+					<tr><!-- color -->
+						<td>Color</td>
+
+						<td>
+							<div class="color-pattern" [style.background]="currentZone.color" *ngIf="status!==3"></div>
+							<div *ngIf="status===3">
+								<mat-form-field class="full-width">
+									<input matInput [(colorPicker)]="paramValue" [style.background]="paramValue" [cpOutputFormat]="'hex'" [cpPosition]="'bottom'" [(ngModel)]="paramValue" />
+								</mat-form-field>
+							</div>
+						</td>
+
+						<td *ngIf="bIsEditable">
+							<mat-icon class="green-text pointer" (click)="editValue(3, currentZone.color)" *ngIf="status!==3">edit</mat-icon>
+							<mat-icon class="pointer" color="primary" (click)="update()" *ngIf="status===3">check</mat-icon>
+							<mat-icon class="pointer" color="warn" (click)="cancel()" *ngIf="status===3">close</mat-icon>
+						</td>
+					</tr><!-- color -->
+
+					<tr><!-- criticality -->
+						<td>Criticality</td>
+
+						<td>
+							<div *ngIf="status!==4" class="capitalize">
+								{{ currentZone.criticality }}
+							</div>
+							<div *ngIf="status===4">
+								<mat-form-field class="full-width">
+									<mat-select class="capitalize" [(value)]="paramValue">
+										<mat-option *ngFor="let type of CRITICALITIES" [value]="type">
+										{{ type }}
+										</mat-option>
+									</mat-select>
+								</mat-form-field>
+							</div>
+						</td>
+
+						<td *ngIf="bIsEditable">
+							<mat-icon class="green-text pointer" (click)="editValue(4, currentZone.criticality)" *ngIf="status!==4">edit</mat-icon>
+							<mat-icon class="pointer" color="primary" (click)="update()" *ngIf="status===4">check</mat-icon>
+							<mat-icon class="pointer" color="warn" (click)="cancel()" *ngIf="status===4">close</mat-icon>
+						</td>
+					</tr><!-- criticality -->
+
+					<tr><!-- counter of sensors -->
+						<td>Number of sensors</td>
+
+						<td>
+							{{sensorCounter}}
+						</td>
+						<td *ngIf="bIsEditable"></td>
+					</tr><!-- counter of sensors -->
+
+					<tr><!-- sensor types -->
+						<td>Sensor Types</td>
+
+						<td>
+							<mat-form-field class="full-width" *ngIf="bIsTypeLoading">
+								<mat-select>
+									<mat-option *ngFor="let type of sensorTypes" [value]="type" class="capitalize">
+									{{ type }}
+									</mat-option>
+								</mat-select>
+							</mat-form-field>
+						</td>
+						<td *ngIf="bIsEditable"></td>
+					</tr><!-- counter of sensors -->
+				</tbody>
+			</table>
+		</mat-card-content>
+	</mat-card>
+</div>

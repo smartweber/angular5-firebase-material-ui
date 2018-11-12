@@ -1,0 +1,29 @@
+.input-component-area {
+    display: inline-block;
+    width: 100%;
+    display: flex;
+    flex-flow: row;
+    align-items: center;
+    justify-content: center;
+
+    .show-wrapper {
+        position: relative;
+        min-height: 1.2em;
+
+        .pointer {
+            position: absolute;
+            left: 0;
+            right: 0;
+            top: 0;
+            bottom: 0;
+        }
+    }
+
+    .action-wrapper {
+        margin-left: 2em;
+    }
+
+    .edit-wrapper {
+        min-width: 50px;
+    }
+}
